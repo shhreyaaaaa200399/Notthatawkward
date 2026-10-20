@@ -241,13 +241,11 @@ window.NTA_FLOWER = flowerSVG;
 /* ------------------------------------------------------------------ SCREENS: onboarding */
 const LOGO = { W: 994, H: 820, parts: [['p1', 165, 27, 312], ['p2', 479, 45, 174], ['p3', 460, 266, 206], ['p6', 61, 420, 144], ['p5', 197, 405, 157], ['p4', 276, 391, 253], ['p7', 500, 472, 226], ['p8', 721, 493, 199]], bub: { o9: [668, 230, 203], o10: [52, 592, 237] } };
 const SPLASH_SCRIPT = [
-  { who: 'o10', em: '🤔', tx: 'Where do babies come from?' },
-  { who: 'o9', em: '😳', tx: 'Umm… ask your dad!' },
-  { who: 'o10', em: '🥺', tx: 'But whyyy?' },
-  { who: 'o9', em: '😅', tx: 'Look, a bird!' },
+  { who: 'o10', em: '🤔', tx: 'Where do babies<br>come from?' },
+  { who: 'o9', em: '😅', tx: 'Look,<br>a bird!' },
 ];
 reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
-  render: () => `<div class="bgfx"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i><i class="b5"></i><i class="b6"></i></div><div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
+  render: () => `<div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
     <div class="lg" id="lg">${LOGO.parts.map(([f, x, y, w]) => `<img class="lp" src="assets/logo/${f}.png" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%" alt="">`).join('')}
       ${Object.entries(LOGO.bub).map(([f, [x, y, w]]) => `<div class="lb ${f}" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%"><img src="assets/logo/${f}.png" alt=""><span class="tx"></span></div>`).join('')}</div>
     <div class="shead" role="img" aria-label="Not That Awk"></div>
@@ -266,7 +264,7 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     const place = f => { const st = start[f], e = fin(f); return { dx: st.cx - e.cx, dy: st.cy - e.cy }; };
     const pop = (f, line) => {
       const b = bubs[f], st = start[f], { dx, dy } = place(f), tx = $('.tx', b);
-      tx.textContent = line.tx; tx.style.opacity = 1; tx.style.transform = st.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
+      tx.innerHTML = line.tx; tx.style.opacity = 1; tx.style.transform = st.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
       b.style.opacity = 1; b.style.zIndex = 5;
       b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * .2},.2) rotate(${st.rot}deg)`, opacity: 0 }, { transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)`, opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,1.7,.4,1)', fill: 'forwards' });
       const e = em[f]; e.textContent = line.em; e.classList.remove('on'); void e.offsetWidth; e.classList.add('on');
@@ -281,14 +279,14 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
         b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });
       });
       $$('.lp', el).forEach((l, i) => l.animate([{ transform: 'translateY(-70px) scale(.3) rotate(-14deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 650, delay: 500 + i * 90, easing: 'cubic-bezier(.2,1.8,.4,1)', fill: 'forwards' }));
-      at(1500, () => { beep('win'); confetti(36); });
+      at(1500, () => { beep('win'); });
       at(2100, () => { ready = true; el.classList.add('done'); });
     };
     const finish = () => {
       timers.forEach(clearTimeout); done = true; ready = true;
       $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); el.classList.add('done', 'skip');
     };
-    let t = 700; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1250; });
+    let t = 700; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1700; });
     at(t + 300, finale);
     el.onclick = () => { if (ready) { beep('pop'); go('intro'); } else if (!done) finish(); else { beep('pop'); go('intro'); } };
   } });

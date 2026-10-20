@@ -750,3 +750,19 @@ img{-webkit-user-drag:none;user-drag:none}
 .tile .face{height:150px}
 .chip,.chip.sm{top:21px;transform:none}
 .tile .face{height:157px}
+
+/* ---- v3.3 alignment pass: 34px side margins, titles centred, groups centred ---- */
+.gl{left:70px;top:98px;width:300px;height:300px}
+.gl-side{left:410px;top:112px;width:450px}
+.ama{left:50%;right:auto;width:852px;margin-left:-426px;top:96px}
+.ama-cta{position:absolute;left:0;right:0;bottom:18px;display:flex;justify-content:center}
+.card-area{left:410px;width:450px}.lvl{left:410px}
+.dice-wrap{left:90px}.shadow{left:105px}.roll-hint{left:90px}
+
+/* splash: plain white, nothing decorative */
+.splash{background:#fff}
+.splash .bgfx{display:none}
+.splash .lb.o9 .tx{left:22%;right:10%}
+.hi-row{gap:6px}.hi-row button{padding:8px 10px;font-size:15px}
+.ama-cta{bottom:8px}
+.splash .lb.o9 .tx{left:18%;right:18%;top:62%}

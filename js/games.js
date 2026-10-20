@@ -184,9 +184,9 @@ reg('match', { name: 'Feelings Match (new)', group: 'Play',
 
 /* ------------------------------------------------------------------ Feelings flower */
 reg('feelings', { name: 'Feelings Flower (new)', group: 'Play',
-  render: () => `${backB}${closeB('go:playhub')}<div class="eyebrow sm" style="left:400px"><h2>FEELINGS FLOWER</h2><h3>Which petal are you today?</h3></div>
-    <div class="abs" style="left:34px;top:58px;width:340px;height:380px">${N.flowerSVG({ cols: D.EMOS.map(e => e.c), click: true, style: 'width:340px;height:378px' })}</div>
-    <div class="abs" id="efp" style="left:410px;top:112px;width:480px"><div class="ef-empty" style="position:static;width:auto;padding-top:60px">Tap a petal<small>Meet a feeling. Find it in your body. Learn what helps.</small></div></div>
+  render: () => `${backB}${closeB('go:playhub')}<div class="eyebrow sm"><h2>FEELINGS FLOWER</h2><h3>Which petal are you today?</h3></div>
+    <div class="abs" style="left:70px;top:94px;width:290px;height:330px">${N.flowerSVG({ cols: D.EMOS.map(e => e.c), click: true, style: 'width:290px;height:322px' })}</div>
+    <div class="abs" id="efp" style="left:400px;top:130px;width:460px"><div class="ef-empty" style="position:static;width:auto;padding-top:60px">Tap a petal<small>Meet a feeling. Find it in your body. Learn what helps.</small></div></div>
     <div class="abs" id="efc" style="right:26px;bottom:18px;font:800 11.5px var(--body);color:#777">0 / ${D.EMOS.length} feelings met</div>`,
   mount: el => {
     const found = new Set(); const pts = $$('.pt', el);
@@ -252,8 +252,9 @@ ACT.anon = () => { S._anon = S._anon === false; $('.sw-t').classList.toggle('on'
 reg('ama', { name: 'Ask an Expert (new)', group: 'Meet',
   render: () => `${backB}${closeB('go:meethub')}${hd('Real experts. Real answers.', 'ASK AN EXPERT', 'sm')}
     <div class="ama"><div class="ses"><div class="qa-h">COMING UP (SAMPLE SESSIONS)</div>${D.AMA.map(a => `<div class="sess" style="--c:${a.c}">${N.avImg(a.av === 'owl' ? 'elephant' : a.av)}<div><b>${a.role}</b><span>${esc(a.topic)}</span></div><span class="when">${a.when}</span></div>`).join('')}
-      <button class="btn ye" data-act="askq">Send a question anonymously</button></div>
-      <div><div class="qa-h">PARENTS ASKED</div><div class="qa">${D.QA.map(q => `<details><summary>${esc(q[0])}</summary><p>${esc(q[1])}</p></details>`).join('')}</div></div></div>` });
+      </div>
+      <div><div class="qa-h">PARENTS ASKED</div><div class="qa">${D.QA.map(q => `<details><summary>${esc(q[0])}</summary><p>${esc(q[1])}</p></details>`).join('')}</div></div></div>
+    <div class="ama-cta"><button class="btn ye" data-act="askq">Send a question anonymously</button></div>` });
 ACT.askq = () => {
   modal(`<div class="sheet" style="left:190px;top:70px;width:550px;padding:24px 28px;box-shadow:0 0 0 3px #000,10px 10px 0 3px var(--yellow)"><h4 class="disp" style="margin:0 0 4px;font-size:26px;color:var(--purple)">Your question, anonymously</h4><p style="margin:0 0 12px;font:600 12.5px var(--body);color:#777">Experts answer in the next live session. Please don’t share names or addresses.</p>
     <textarea id="aq" rows="3" maxlength="200" style="width:100%;font:600 14px var(--body);padding:10px;border:2px solid #000;outline:none;resize:none" placeholder="Type your question…"></textarea>
@@ -265,12 +266,12 @@ ACT.askq = () => {
 const world = { hi: 5902, fam: 1284 };
 const CONT = ['M30 80 L90 60 L120 74 L128 106 L104 134 L84 170 L62 158 L52 124 Z', 'M110 180 L146 176 L162 206 L152 262 L128 296 L116 262 L108 214 Z', 'M168 92 L214 70 L248 82 L246 118 L226 138 L238 188 L212 262 L176 240 L168 180 L186 130 Z', 'M252 74 L312 62 L352 86 L342 138 L310 154 L280 138 L258 120 Z', 'M296 232 L336 224 L346 256 L318 272 L296 262 Z'];
 reg('world', { name: 'Hi, World! (new)', group: 'Meet',
-  render: () => `${backB}${closeB('go:meethub')}<div class="eyebrow sm" style="left:400px"><h2>HI, WORLD!</h2><h3>Families chatting right now</h3></div>
+  render: () => `${backB}${closeB('go:meethub')}<div class="eyebrow sm"><h2>HI, WORLD!</h2><h3>Families chatting right now</h3></div>
     <div class="gl"><svg viewBox="0 0 360 360"><defs><clipPath id="gc"><circle cx="180" cy="180" r="172"/></clipPath></defs><circle cx="180" cy="180" r="172" fill="#96c5d1" stroke="#000" stroke-width="3"/>
       <g clip-path="url(#gc)"><g transform="translate(-6 8)">${CONT.map(p => `<path d="${p}" fill="#59662e"/>`).join('')}</g>
       ${[0, 1, 2, 3].map(i => `<ellipse cx="${60 + i * 70}" cy="${40 + (i % 2) * 260}" rx="38" ry="12" fill="#fff" opacity=".35"/>`).join('')}
       ${D.CITIES.map((c, i) => `<g class="pin" data-i="${i}" transform="translate(${c.x * 360} ${c.y * 360})"><circle class="pl" r="7" fill="#ffcb05"/><circle r="7" fill="#e35e26" stroke="#000" stroke-width="2.5"/></g>`).join('')}</g></svg></div>
-    <div class="gl-side" style="top:82px"><div class="gl-card" id="gc2"><small>TAP A PIN</small><p>Say hi to a family somewhere in the world.</p><em>Demo data, not real families.</em></div>
+    <div class="gl-side"><div class="gl-card" id="gc2"><small>TAP A PIN</small><p>Say hi to a family somewhere in the world.</p><em>Demo data, not real families.</em></div>
       <div class="counter"><div style="background:var(--orange)"><b id="cF">${world.fam.toLocaleString()}</b><span>families started a chat today</span></div><div style="background:var(--logo)"><b id="cH">${world.hi.toLocaleString()}</b><span>hellos sent</span></div></div>
       <div class="hi-row">${D.GREETS.map((g, i) => `<button data-g="${i}">${g[0]}</button>`).join('')}</div></div>`,
   mount: el => {
@@ -279,7 +280,7 @@ reg('world', { name: 'Hi, World! (new)', group: 'Meet',
     $$('[data-g]', el).forEach(b => b.onclick = () => {
       const g = D.GREETS[+b.dataset.g]; world.hi++; $('#cH', el).textContent = world.hi.toLocaleString(); beep('ok');
       const i = Math.floor(rnd(0, D.CITIES.length)), c = D.CITIES[i], f = document.createElement('div'); f.className = 'floaty'; f.textContent = g[0] + ' ' + g[1];
-      f.style.left = (34 + c.x * 360 * (360 / 360) - 20) + 'px'; f.style.top = (70 + c.y * 360 - 20) + 'px'; $('.screen', document).appendChild(f); setTimeout(() => f.remove(), 2300);
+      f.style.left = (70 + c.x * 300 - 20) + 'px'; f.style.top = (96 + c.y * 300 - 20) + 'px'; $('.screen', document).appendChild(f); setTimeout(() => f.remove(), 2300);
       card.innerHTML = `<small>SENT TO ${c.n.toUpperCase()}</small><p>${esc(c.who)} will see your “${g[0]}”.</p><em>Kids can send stickers and greetings only.</em>`;
       if (world.hi % 5 === 0) addStars(1, 'spreading hellos');
     });
