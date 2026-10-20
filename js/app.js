@@ -25,6 +25,18 @@ const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch
 const draft = { age: '4-6', av: null, name: '' };
 const ageMin = p => ({ '4-6': 4, '7-9': 7, '10-12': 10 }[p.age] || 4);
 const prof = () => S.profiles.find(p => p.id === S.cur) || S.profiles[0];
+/* reading levels: y = 4-6, m = 7-9, o = 10-12. Each age group gets its own colour world, copy and illustrations. */
+const TIER = { '4-6': 'y', '7-9': 'm', '10-12': 'o' };
+const tierOf = p => TIER[(p || prof()).age] || 'y';
+const pickT = (v, tier) => v == null ? '' : typeof v === 'string' ? v : (v[tier] != null ? v[tier] : (tier === 'o' ? (v.m != null ? v.m : v.y) : tier === 'm' ? (v.y != null ? v.y : v.o) : (v.m != null ? v.m : v.o)) || '');
+function storyTier(s, tier) { if (s.tiers.includes(tier)) return tier; const order = { y: ['m', 'o'], m: ['y', 'o'], o: ['m', 'y'] }[tier]; return order.find(t => s.tiers.includes(t)) || s.tiers[0]; }
+/* the story as this child will read it: right-level text, right-level slides, tone-aware illustrations */
+function effStory(s) {
+  const tier = storyTier(s, tierOf()), ctx = { tier, tone: S.tone };
+  const slides = s.slides.filter(sl => !sl.only || sl.only.includes(tier)).map(sl => ({ ...sl, t: pickT(sl.t, tier), q: sl.q, ctx, bg: sl.bg || D.CHOICE_BG[tier] }));
+  if (tier === 'o' && s.facts) slides.push({ w: 'facts', facts: s.facts, ctx, bg: 'navy', t: '' });
+  return { ...s, slides, tier, ctx };
+}
 const storyOn = (pid, s) => {
   const p = S.profiles.find(x => x.id === pid); const o = S.en[pid] && S.en[pid][s.id];
   return o !== undefined ? o : s.minAge <= ageMin(p);
@@ -169,6 +181,7 @@ function render(id, opts) {
   el.className = 'screen enter ' + (def.cls || '') + (S.lang === 'hi' ? ' hindi' : ''); el.dataset.screen = id;
   el.innerHTML = def.render(opts || {}); stage.appendChild(el);
   cur = { id, opts: opts || {} };
+  try { $('#stage').dataset.age = SC[id].group === 'Onboarding' ? 'y' : tierOf(); } catch (e) {}
   if (def.mount) def.mount(el, opts || {});
   if (!NO_CENTER.has(id)) { requestAnimationFrame(() => centerContent(el)); setTimeout(() => centerContent(el), 250); }
   $$('#side nav button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
@@ -255,54 +268,64 @@ window.NTA_FLOWER = flowerSVG;
 /* ------------------------------------------------------------------ SCREENS: onboarding */
 const LOGO = { W: 994, H: 820, parts: [['p1', 165, 27, 312], ['p2', 479, 45, 174], ['p3', 460, 266, 206], ['p6', 61, 420, 144], ['p5', 197, 405, 157], ['p4', 276, 391, 253], ['p7', 500, 472, 226], ['p8', 721, 493, 199]], bub: { o9: [668, 230, 203], o10: [52, 592, 237] } };
 const SPLASH_SCRIPT = [
-  { who: 'o10', em: '🤔', tx: 'Where do babies<br>come from?' },
-  { who: 'o9', em: '😅', tx: 'Look,<br>a bird!' },
+  { who: 'o10', tx: 'Where do babies<br>come from?', ex: { c: 'curious', m: 'surprised', p: 'happy', a: 'happy' } },
+  { who: 'o9', tx: 'Look,<br>a bird!', ex: { c: 'thinking', m: 'worried', p: 'awkward', a: 'embarrassed' } },
 ];
+/* the two families are vector heads: expressions change, they blink, and they talk */
+const SPL = { c: { skin: 'c', hair: 'braid', top: 1 }, m: { skin: 'a', hair: 'long', acc: ['bindi', 'earring'] }, p: { skin: 'b', hair: 'short', acc: ['moustache'] }, a: { skin: 'a', hair: 'dupatta', acc: ['bindi'] } };
+const SPL_TOP = { c: '#ffcb05', m: '#653781', p: '#96c5d1', a: '#9ca32f' };
+const splHead = (k, ex, talk) => `<g class="sh sh-${k}">${ART.poly([[44, 100], [74, 98], [76, 118], [42, 120]], ART.shade(ART.SK[SPL[k].skin], -.2))}${ART.poly([[0, 150], [30, 116], [92, 112], [124, 146], [136, 230], [-10, 236]], SPL_TOP[k])}${ART.head({ ...SPL[k], ex, mouth: talk ? 'open' : null })}</g>`;
+const splGroup = (a, b, ea, eb, ta, tb) => `<svg viewBox="0 0 330 290" class="sg">
+  <g transform="translate(8 6) scale(1.4) rotate(-5 60 60)">${splHead(a, ea, ta)}</g><g transform="translate(176 128) scale(1.02) rotate(8 60 60)">${splHead(b, eb, tb)}</g></svg>`;
 reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
-  render: () => `<div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
+  render: () => `<div class="sf sfl" id="gL"></div><div class="sf sfr" id="gR"></div>
     <div class="lg" id="lg">${LOGO.parts.map(([f, x, y, w]) => `<img class="lp" src="assets/logo/${f}.png" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%" alt="">`).join('')}
       ${Object.entries(LOGO.bub).map(([f, [x, y, w]]) => `<div class="lb ${f}" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%"><img src="assets/logo/${f}.png" alt=""><span class="tx"></span></div>`).join('')}</div>
-    <div class="shead" role="img" aria-label="Not That Awk"></div>
     <div class="abs hint">TAP TO START</div>
     <svg class="abs go" viewBox="0 0 56 24"><path d="M2 12h44M36 3l14 9-14 9" stroke="#000" stroke-width="5" fill="none"/></svg>`,
   mount: el => {
     const lg = $('#lg', el), K = 0.37, LX = (932 - LOGO.W * K) / 2, LY = 30;
     lg.style.cssText = `left:${LX}px;top:${LY}px;width:${LOGO.W * K}px;height:${LOGO.H * K}px`;
-    const fl = $('.sfl', el), fr = $('.sfr', el), em = { o10: $('.em', fl), o9: $('.em', fr) }, face = { o10: fl, o9: fr };
-    // where each bubble starts: beside the speaker, flipped for the parent so its tail points at them
+    const fl = $('#gL', el), fr = $('#gR', el);
+    const st = { c: 'happy', m: 'happy', p: 'happy', a: 'happy' }, tk = { c: 0, m: 0, p: 0, a: 0 };
+    const draw = () => { fl.innerHTML = splGroup('m', 'c', st.m, st.c, tk.m, tk.c); fr.innerHTML = splGroup('p', 'a', st.p, st.a, tk.p, tk.a); };
+    draw();
+    // blink every few seconds: lids fade in/out through CSS, no redraw needed
     const start = { o10: { cx: 330, cy: 150, sc: 1.7, flip: 1, rot: -6 }, o9: { cx: 600, cy: 262, sc: 1.7, flip: -1, rot: 5 } };
     const bubs = {}; $$('.lb', el).forEach(b => bubs[[...b.classList].find(c => c.startsWith('o'))] = b);
     const fin = f => { const [x, y, w] = LOGO.bub[f]; const h = $('img', bubs[f]).naturalHeight || 200; return { cx: LX + (x + w / 2) * K, cy: LY + (y + h / 2) * K }; };
-    const timers = []; let done = false, ready = false;
+    const timers = []; let done = false, ready = false, idle = null, talkT = null;
     const at = (ms, fn) => timers.push(setTimeout(fn, ms));
-    const place = f => { const st = start[f], e = fin(f); return { dx: st.cx - e.cx, dy: st.cy - e.cy }; };
+    const place = f => { const s = start[f], e = fin(f); return { dx: s.cx - e.cx, dy: s.cy - e.cy }; };
+    const talk = (who, ms) => { clearInterval(talkT); let on = 0; talkT = setInterval(() => { on ^= 1; tk[who] = on; draw(); }, 150); setTimeout(() => { clearInterval(talkT); tk[who] = 0; draw(); }, ms); };
     const pop = (f, line) => {
-      const b = bubs[f], st = start[f], { dx, dy } = place(f), tx = $('.tx', b);
-      tx.innerHTML = line.tx; tx.style.opacity = 1; tx.style.transform = st.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
+      const b = bubs[f], s = start[f], { dx, dy } = place(f), tx = $('.tx', b);
+      tx.innerHTML = line.tx; tx.style.opacity = 1; tx.style.transform = s.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
       b.style.opacity = 1; b.style.zIndex = 5;
-      b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * .2},.2) rotate(${st.rot}deg)`, opacity: 0 }, { transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)`, opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,1.7,.4,1)', fill: 'forwards' });
-      const e = em[f]; e.textContent = line.em; e.classList.remove('on'); void e.offsetWidth; e.classList.add('on');
-      face[f].classList.remove('talk'); void face[f].offsetWidth; face[f].classList.add('talk'); beep('pop');
+      b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s.flip * .2},.2) rotate(${s.rot}deg)`, opacity: 0 }, { transform: `translate(${dx}px,${dy}px) scale(${s.flip * s.sc},${s.sc}) rotate(${s.rot}deg)`, opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,1.7,.4,1)', fill: 'forwards' });
+      Object.assign(st, line.ex); draw(); talk(f === 'o10' ? 'c' : 'p', 1100); beep('pop');
     };
     const finale = () => {
-      // the families step to either side of the logo and stay
-      [[fl, 120, 206, 46, 196], [fr, 610, 78, 686, 178]].forEach(([f, l0, t0, l1, t1]) => { f.style.animation = 'none'; f.style.opacity = 1; f.animate([{ left: l0 + 'px', top: t0 + 'px' }, { left: l1 + 'px', top: t1 + 'px' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'forwards' }); $('.em', f).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); });
-      el.classList.add('fin');
+      Object.assign(st, { c: 'laugh', m: 'laugh', p: 'laugh', a: 'happy' }); draw();
+      [[fl, 46, 188], [fr, 676, 174]].forEach(([f, l1, t1], i) => { f.style.animation = 'none'; f.style.opacity = 1; const L0 = i ? 600 : 110, T0 = i ? 70 : 170; f.animate([{ left: L0 + 'px', top: T0 + 'px', width: '260px' }, { left: l1 + 'px', top: t1 + 'px', width: '200px' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'forwards' }); });
       Object.keys(bubs).forEach((f, i) => {
-        const b = bubs[f], st = start[f], { dx, dy } = place(f); $('.tx', b).style.opacity = 0;
-        b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });
+        const b = bubs[f], s = start[f], { dx, dy } = place(f); $('.tx', b).style.opacity = 0;
+        b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s.flip * s.sc},${s.sc}) rotate(${s.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });
       });
       $$('.lp', el).forEach((l, i) => l.animate([{ transform: 'translateY(-70px) scale(.3) rotate(-14deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 650, delay: 500 + i * 90, easing: 'cubic-bezier(.2,1.8,.4,1)', fill: 'forwards' }));
-      at(1500, () => { beep('win'); });
-      at(2100, () => { ready = true; el.classList.add('done'); });
+      at(1500, () => beep('win'));
+      at(2100, () => { ready = true; el.classList.add('done'); lifeLoop(); });
     };
+    // idle life: expressions drift, like they're still chatting
+    const lifeLoop = () => { const pool = ['happy', 'laugh', 'curious', 'shy', 'proud']; idle = setInterval(() => { const k = ['c', 'm', 'p', 'a'][Math.floor(Math.random() * 4)]; st[k] = pool[Math.floor(Math.random() * pool.length)]; draw(); }, 1800); };
     const finish = () => {
-      timers.forEach(clearTimeout); done = true; ready = true;
-      $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); el.classList.add('done', 'skip');
+      timers.forEach(clearTimeout); clearInterval(talkT); done = true; ready = true;
+      $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); Object.assign(st, { c: 'laugh', m: 'laugh', p: 'laugh', a: 'happy' }); draw(); el.classList.add('done', 'skip'); if (!idle) lifeLoop();
     };
-    let t = 700; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1700; });
+    let t = 900; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1900; });
     at(t + 300, finale);
-    el.onclick = () => { if (ready) { beep('pop'); go('intro'); } else if (!done) finish(); else { beep('pop'); go('intro'); } };
+    el.onclick = () => { if (ready) { clearInterval(idle); beep('pop'); go('intro'); } else if (!done) finish(); else { clearInterval(idle); beep('pop'); go('intro'); } };
+    el._cleanup = () => { clearInterval(idle); clearInterval(talkT); timers.forEach(clearTimeout); };
   } });
 
 const INTRO = [
@@ -487,7 +510,7 @@ ACT.cueofday = () => {
 
 /* ------------------------------------------------------------------ LEARN */
 const zoneFilter = { z: 'all' };
-const thumbHTML = s => { const th = s.thumb; const a = D.ART[th.art]; return `<div class="th" style="background:${th.bg}"><img src="${a.src}" style="height:${th.h}px" alt=""></div>`; };
+const thumbHTML = s => { const e = effStory(s); return `<div class="th"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice">${SCN[s.thumb](e.ctx)}</svg>${s.real ? `<span class="rl">REAL STORY</span>` : ''}</div>`; };
 reg('learn', { name: 'Learn · story library', group: 'Learn', cls: '',
   render: () => {
     const p = prof(); const list = D.STORIES.filter(s => storyOn(p.id, s) && (zoneFilter.z === 'all' || s.zone === zoneFilter.z));
@@ -516,7 +539,7 @@ reg('topics', { name: 'Choose topics (grown-ups)', group: 'Learn',
     <div class="tm-cards">${vis.map((s, i) => { const on = storyOn(p.id, s); return `<div class="tc z-${s.zone} ${on ? '' : 'off'}" style="--rot:${[-3, 2, -2][i]}deg" data-id="${s.id}">
       <button class="ck" data-act="tog:${s.id}" aria-label="${on ? 'Remove from library' : 'Add to library'}">${ICON.check}</button>
       ${s.minAge > ageMin(p) ? `<span class="lk">${s.minAge}+</span>` : ''}<h5>${esc(s.title)}</h5>
-      ${D.ART[s.thumb.art] ? `<img class="wm" src="${D.ART[s.thumb.art].src}" alt="">` : ''}
+      <div class="wmsvg"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice">${SCN[s.thumb](effStory(s).ctx)}</svg></div>
       <button class="pv" data-act="preview:${s.id}">Preview ${ICON.play}</button></div>`; }).join('')}</div>
     <div class="tm-pager"><button class="btn sm ghost" data-act="mpage:-1" ${mgr.page === 0 ? 'disabled' : ''}>‹</button> ${mgr.page + 1} / ${pages} <button class="btn sm ghost" data-act="mpage:1" ${mgr.page >= pages - 1 ? 'disabled' : ''}>›</button></div>
     <div class="zones"><button class="all ${mgr.z === 'all' ? 'on' : ''}" data-act="mz:all">See All</button>${D.ZONES.map(z => `<button class="${mgr.z === z.id ? 'on' : ''}" data-act="mz:${z.id}">${ICON[z.icon]}${z.name}</button>`).join('')}</div>
@@ -525,7 +548,7 @@ ACT.mz = z => { mgr.z = z; mgr.page = 0; rerender(); };
 ACT.mpage = d => { mgr.page += +d; rerender(); };
 ACT.tog = id => { const p = prof(); const s = D.STORIES.find(x => x.id === id); S.en[p.id] = S.en[p.id] || {}; S.en[p.id][id] = !storyOn(p.id, s); save(); const card = $(`.tc[data-id="${id}"]`); card && card.classList.toggle('off', !S.en[p.id][id]); toast(S.en[p.id][id] ? `${p.name} can now see this story` : `Hidden from ${p.name}`); };
 ACT.preview = id => {
-  const s = D.STORIES.find(x => x.id === id), p = prof(); let i = 0; const on = () => storyOn(p.id, s);
+  const s0 = D.STORIES.find(x => x.id === id), s = effStory(s0), p = prof(); let i = 0; const on = () => storyOn(p.id, s0);
   const draw = () => { $('#modal').innerHTML = `<div class="sheet" style="left:34px;top:30px;width:864px;height:372px">
     <button class="ib x" style="left:16px;top:12px;width:50px;height:50px" data-close aria-label="Close">${ICON.x}</button>
     <div class="pv-l"><h4>${esc(s.title)}</h4><p>${esc(s.desc)}</p><div class="tags"><span>${s.tone}</span><span>${ICON.clock} ${s.mins} min</span><span>${s.minAge}+</span></div>
@@ -542,7 +565,18 @@ ACT.preview = id => {
 /* ------------------------------------------------------------------ STORY reader */
 const BGC = { peach: 'bg-peach', cream: 'bg-cream', olive: 'bg-olive', yellow: 'bg-yellow', purple: 'bg-purple', orange: 'bg-orange', sky: 'bg-sky', navy: 'bg-navy' };
 function slideHTML(s, st, idx, mini) {
-  let h = `<div class="sl ${BGC[s.bg] || 'bg-peach'}" data-i="${idx}" style="${mini ? 'transform:none;opacity:1' : ''}">`;
+  let h = `<div class="sl ${s.scene || s.w === 'facts' ? 'bg-scene' : (BGC[s.bg] || 'bg-peach')}" data-i="${idx}" style="${mini ? 'transform:none;opacity:1' : ''}">`;
+  if (s.scene && window.SCN && SCN[s.scene]) {
+    h += `<div class="scn"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${SCN[s.scene](s.ctx || { tier: 'y', tone: 1 })}</svg></div>`;
+    if (s.tone) h += `<div class="tonechip">${['Diagram view', 'Simple view', 'Gentle view'][(s.ctx && s.ctx.tone) || 0]}</div>`;
+    const len = (s.t || '').length, w = Math.max(280, Math.min(470, 120 + len * 3.1)), fs = len > 130 ? 14 : len > 90 ? 15 : 16.5, lines = Math.ceil(len * (fs * .52) / (w - 60)), hh = Math.max(56, 36 + lines * (fs * 1.38));
+    h += `<div class="banner b1 cap" style="left:84px;top:16px;width:${w}px;height:${hh}px;font-size:${fs}px">${esc(s.t || '')}</div>`;
+    return h + '</div>';
+  }
+  if (s.w === 'facts') {
+    const f = s.facts;
+    return h + `<div class="facts"><small>REAL LIFE · GO DEEPER</small><h4>Fast facts</h4><ul>${f.items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>${f.quote ? `<blockquote>${esc(f.quote)}</blockquote>` : ''}</div></div>`;
+  }
   if (s.art) {
     const a = D.ART[s.art]; const ap = s.ap || {}; const pos = ap.l != null ? `left:${ap.l}px` : `right:${ap.r}px`;
     h += `<img class="art sway" src="${a.src}" alt="" style="height:${s.h || a.h}px;${pos};bottom:${ap.b || 20}px">`;
@@ -562,7 +596,7 @@ function widgetHTML(s, st, idx) {
       <div class="abs" style="left:420px;top:10px;width:420px;height:430px">${flowerSVG({ fills: Array(12).fill(null), stroke: '#fff', style: 'width:420px;height:466px' })}</div>`;
     case 'choice': return `<div class="banner b3 ${s.bg === 'orange' ? 'alt' : ''}" style="left:166px;top:30px;width:600px;height:78px;font-size:17px">${esc(s.q)}</div>
       <div class="choice" style="left:251px;top:124px;width:430px">${s.opts.map((o, i) => `<button data-o="${i}">${esc(o[0])}</button>`).join('')}</div><div class="fb" style="left:166px;top:298px;width:600px;text-align:center;display:none"></div>
-      <img class="art sway" src="${D.ART[['other', 'child', 'parent'][idx % 3]].src}" alt="" style="height:110px;right:40px;bottom:16px">`;
+      <svg class="art sway chart" viewBox="-10 -60 150 390" style="height:200px;right:34px;bottom:10px;width:auto">${ART.person(ART.P(['mini', 'riya', 'arjun', 'meera'][idx % 4], { pose: 'think', ex: 'curious', kid: 1 }))}</svg>`;
     case 'emoflower': return `<div class="abs" style="left:20px;top:0;width:360px">${flowerSVG({ cols: D.EMOS.map(e => e.c), click: true, style: 'width:360px;height:400px' })}</div><div class="ef-panel-slot abs" style="left:420px;top:90px;width:480px"><div class="ef-empty" style="position:static;width:auto;padding-top:60px">${esc(s.t)}<small>Each petal is a feeling.</small></div></div>`;
     case 'cells': { const n = D.STORIES.find(x => x.id === st.id).slides.filter(x => x.w === 'cells'); const k = n.indexOf(s); return cellsSVG(k); }
     case 'voice': return `<div class="banner b3" style="left:96px;top:34px;width:600px;height:70px;font-size:17px">${esc(s.t)}</div>
@@ -585,12 +619,12 @@ function cellsSVG(k) {
 }
 
 reg('story', { name: 'Story reader', group: 'Learn', cls: 'story',
-  render: o => { const s = D.STORIES.find(x => x.id === (o.id || 'colours')); return `<div class="stg">${s.slides.map((sl, i) => slideHTML(sl, s, i)).join('')}</div>
+  render: o => { const s = effStory(D.STORIES.find(x => x.id === (o.id || 'pink'))); return `<div class="stg">${s.slides.map((sl, i) => slideHTML(sl, s, i)).join('')}</div>
     ${backB}<button class="ib snd" data-act="speakit" aria-label="Read aloud">${ICON.speak}</button>
     <button class="s-prev" data-act="sprev" aria-label="Previous">${ICON.chevL}</button><button class="s-next" data-act="snext" aria-label="Next">${ICON.chevR}</button>
     <div class="dots">${s.slides.map(() => '<i></i>').join('')}</div>`; },
   mount: (el, o) => {
-    const s = D.STORIES.find(x => x.id === (o.id || 'colours')); const sl = $$('.sl', el), dots = $$('.dots i', el); let i = 0; const need = {};
+    const s = effStory(D.STORIES.find(x => x.id === (o.id || 'pink'))); const sl = $$('.sl', el), dots = $$('.dots i', el); let i = 0; const need = {};
     const lockNext = () => { const w = s.slides[i].w; const nx = $('.s-next', el); const gated = w && ['palette', 'choice', 'voice', 'trust'].includes(w) && !need[i]; nx.style.opacity = gated ? .35 : 1; nx.style.pointerEvents = gated ? 'none' : 'auto'; };
     const show = n => {
       i = Math.max(0, Math.min(s.slides.length - 1, n));
@@ -648,13 +682,13 @@ function bindEmo(root, panel) {
 window.NTA_bindEmo = bindEmo;
 
 reg('done', { name: 'Story complete + cue cards', group: 'Learn', cls: 'done',
-  render: o => { const s = D.STORIES.find(x => x.id === (o.id || 'colours')); return `${closeB('go:learn')}${hd('Story complete!', 'WELL DONE')}
+  render: o => { const s = D.STORIES.find(x => x.id === (o.id || 'pink')); return `${closeB('go:learn')}${hd('Story complete!', 'WELL DONE')}
     <div class="stars" style="top:96px;z-index:4">${[1, 2, 3].map(() => ICON.star).join('')}</div>
     <div class="cue c-or" style="left:150px;top:196px;--r:-3deg"><small>${s.talk[0][0]}</small>${esc(s.talk[0][1])}</div>
     <div class="cue c-pu" style="left:420px;top:204px;--r:2.5deg"><small>${s.talk[1][0]}</small>${esc(s.talk[1][1])}</div>
     <div class="abs" style="left:0;right:0;top:174px;text-align:center;font:800 12px var(--body);color:#888;letter-spacing:.8px">NOW TALK ABOUT IT TOGETHER</div>
     <div class="abs" style="left:680px;top:204px;width:210px;display:flex;flex-direction:column;gap:12px"><button class="btn ol" data-act="talked:${s.id}">We talked! +2 ★</button><button class="btn ye" data-act="go:learn">More stories</button><button class="btn ghost" data-act="go:hub">Home</button></div>`; },
-  mount: (el, o) => { const s = D.STORIES.find(x => x.id === (o.id || 'colours')); beep('win'); confetti(50); if (!S.seen.includes(s.id)) { S.seen.push(s.id); S.week[6] = (S.week[6] || 0) + 1; addStars(3, 'finishing a story'); } } });
+  mount: (el, o) => { const s = D.STORIES.find(x => x.id === (o.id || 'pink')); beep('win'); confetti(50); if (!S.seen.includes(s.id)) { S.seen.push(s.id); S.week[6] = (S.week[6] || 0) + 1; addStars(3, 'finishing a story'); } } });
 ACT.talked = () => { S.talks++; save(); addStars(2, 'talking together'); setTimeout(() => go('hub'), 1400); };
 
 /* ------------------------------------------------------------------ presenter shell, scaling, boot */

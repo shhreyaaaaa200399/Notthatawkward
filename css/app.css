@@ -787,3 +787,38 @@ img{-webkit-user-drag:none;user-drag:none}
 .ph-grid{top:128px}
 .ph-nv{top:204px}
 .ph-bar{bottom:24px}
+
+/* splash heads: alive */
+.splash .sf{width:260px;height:auto}.splash .sfl{left:110px;top:170px}.splash .sfr{left:600px;top:70px}
+.splash .sf .sg{display:block;width:100%;overflow:visible}
+.splash.skip .sfl{left:46px;top:188px;width:200px}.splash.skip .sfr{left:676px;top:174px;width:200px}
+.splash .sf img{display:none}
+.lid{animation:blink 4.2s infinite}
+@keyframes blink{0%,93%,100%{opacity:0}95.5%{opacity:1}}
+.sh-m .lid{animation-delay:-1s}.sh-p .lid{animation-delay:-2.3s}.sh-a .lid{animation-delay:-3.1s}
+.splash .sh{transform-box:fill-box}
+.splash.done .sf .sg{animation:sway 5s ease-in-out infinite}
+.splash.done .sfr .sg{animation-delay:-2.2s}
+.splash.skip .sf{display:block}
+
+/* ---- v4: drawn scenes, real-story badge, per-age colour worlds ---- */
+#stage[data-age="y"]{--paper:#fffaf0;--cap:#e35e26;--agec:#e35e26}
+#stage[data-age="m"]{--paper:#f4f9f8;--cap:#59662e;--agec:#59662e}
+#stage[data-age="o"]{--paper:#f7f4fb;--cap:#592898;--agec:#592898}
+.sl.bg-scene{background:var(--paper)}
+.scn{position:absolute;inset:0}.scn svg{width:100%;height:100%;display:block}
+.sl .banner.cap{background:var(--cap);z-index:4;padding:10px 24px;font-weight:800;line-height:1.32}
+#stage[data-age="y"] .sl .banner.cap{font-size:18px}
+.tonechip{position:absolute;right:16px;top:14px;z-index:5;font:800 10px var(--body);letter-spacing:.8px;text-transform:uppercase;background:#fff;color:var(--ink);padding:5px 10px;box-shadow:0 0 0 1.5px var(--ink);transform:rotate(1.5deg)}
+.facts{position:absolute;left:50%;top:50%;width:640px;margin:-168px 0 0 -320px;background:#fff;padding:22px 28px;box-shadow:0 0 0 3px var(--ink),10px 10px 0 3px var(--yellow);color:var(--ink);transform:rotate(-.6deg)}
+.facts small{font:400 12px var(--display);letter-spacing:1.6px;color:var(--cap)}
+.facts h4{margin:4px 0 10px;font:400 34px/1 var(--display);color:var(--purple)}
+.facts ul{margin:0 0 12px;padding-left:20px;font:700 14.5px/1.45 var(--body)}
+.facts li{margin:4px 0}
+.facts blockquote{margin:0;padding:10px 14px;background:var(--cream);font:700 14px/1.4 var(--body);border-left:5px solid var(--orange)}
+.lc .th svg{position:absolute;inset:0;width:100%;height:100%}
+.lc .th .rl,.thw .rl{position:absolute;left:8px;bottom:8px;font:800 9px var(--body);letter-spacing:1px;background:#0b0b0b;color:#fff;padding:3px 8px;z-index:3}
+.tc .wmsvg{position:absolute;inset:0;opacity:.28;overflow:hidden;mix-blend-mode:multiply}.tc .wmsvg svg{width:100%;height:100%}
+.pills button.on{background:var(--agec,var(--purple));box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.sl .banner{background:var(--cap,var(--orange))}.sl .banner.alt{background:var(--logo)}
+.sl .art.chart{position:absolute;z-index:2}
