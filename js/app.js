@@ -235,9 +235,9 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
   mount: el => { el.onclick = () => { beep('pop'); go('intro'); }; } });
 
 const INTRO = [
-  { h: 'Kids have <em>questions.</em>', p: 'Big ones. Small ones. “Wait… WHAT?” ones. And they’re going to ask somebody.', art: 'kids4', ah: 250, ar: 70 },
-  { h: 'Grown-ups have <em>nervous laughter.</em>', p: '75% of Indian parents never start “The Talk”. Not because they don’t care, but because they don’t know how to begin.', art: 'facesL', ah: 215, ar: 80 },
-  { h: 'So let’s make it <em>not that awk.</em>', p: 'Not a lesson. Not a textbook. A feeling. Many small conversations that build trust, one story, one game, one giggle at a time.', art: 'flower', ah: 340, ar: 90 },
+  { h: 'Kids have <em>questions.</em>', p: 'Big ones, small ones, “WHAT?!” ones.', art: 'kids4', ah: 170 },
+  { h: 'Grown-ups get <em>nervous.</em>', p: 'Most don’t know how to start “The Talk”.', art: 'facesL', ah: 150 },
+  { h: 'Let’s make it <em>not that awk.</em>', p: 'Tiny chats. Stories. Games. Giggles.', art: 'flower', ah: 190 },
 ];
 reg('intro', { name: 'Welcome (new)', group: 'Onboarding', cls: 'intro',
   render: () => `<div class="copy"></div><div class="art"></div><div class="dots dk">${INTRO.map(() => '<i></i>').join('')}</div>
@@ -247,7 +247,7 @@ reg('intro', { name: 'Welcome (new)', group: 'Onboarding', cls: 'intro',
     const draw = () => {
       const s = INTRO[i];
       copy.innerHTML = `<h2>${s.h}</h2><p>${s.p}</p>`;
-      art.style.right = s.ar + 'px'; art.innerHTML = artImg(s.art, s.ah, 'sway');
+      art.innerHTML = artImg(s.art, s.ah, 'sway');
       dots.forEach((d, k) => d.classList.toggle('on', k === i));
       nx.textContent = i === INTRO.length - 1 ? 'LET’S GO' : t('next');
       copy.style.animation = 'none'; void copy.offsetWidth; copy.style.animation = 'rise .5s both';
@@ -282,10 +282,9 @@ ACT.who = id => { S.roleChosen = id; S.role = id; $$('.who').forEach(b => b.clas
 ACT.whonext = () => go(S.roleChosen === 'child' ? 'kidgate' : 'comfort');
 
 reg('kidgate', { name: 'Grown-up nearby? (new)', group: 'Onboarding',
-  render: () => `<div class="abs" style="left:60px;top:96px;width:430px"><h2 class="disp" style="margin:0 0 12px;font-size:44px;line-height:1;color:var(--purple)">Hey there! Is a <span style="color:var(--orange)">grown-up</span> nearby?</h2>
-      <p style="margin:0 0 22px;font:600 16px/1.45 var(--body);color:#333;max-width:380px">This app is for talking <b>together</b>. Get a parent or caretaker to say hi, then we’ll set things up.</p>
-      <div style="display:flex;gap:14px"><button class="btn ol" data-act="go:consent">Yes, they’re here</button><button class="btn ghost" data-act="kidno">Not yet</button></div></div>
-    <img class="abs sway" src="assets/who_child.png" alt="" style="right:70px;bottom:50px;height:250px">${foot([{ l: t('back'), act: 'back', cls: 'lt' }])}`,
+  render: () => `<div class="cstack"><img class="sway" src="assets/who_child.png" alt="" style="height:130px"><h2 class="disp">Is a <span style="color:var(--orange)">grown-up</span> nearby?</h2>
+      <p>Get one to say hi first. This app is for talking <b>together</b>.</p>
+      <div style="display:flex;gap:14px;justify-content:center"><button class="btn ol" data-act="go:consent">Yes, they’re here</button><button class="btn ghost" data-act="kidno">Not yet</button></div></div>${foot([{ l: t('back'), act: 'back', cls: 'lt' }])}`,
 });
 ACT.kidno = () => { toast('No worries! Come back with a grown-up and we’ll start.'); setTimeout(() => go('who'), 900); };
 
@@ -295,14 +294,14 @@ const faceSVG = lvl => `<svg viewBox="0 0 64 64"><polygon points="8,12 54,6 58,5
   ${lvl === 0 ? '<path d="M21 43Q33 55 47 42" stroke="#000" stroke-width="3" fill="#fff"/>' : lvl === 1 ? '<path d="M22 46L47 44" stroke="#000" stroke-width="3.4" stroke-linecap="round"/>' : '<path d="M20 47q6-7 11 0t14-2" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>'}
   ${lvl === 2 ? '<path d="M56 12q5 8 0 11-5-3 0-11z" fill="#96c5d1" stroke="#000" stroke-width="1.5"/><path d="M6 30q4 7 0 9-4-2 0-9z" fill="#96c5d1" stroke="#000" stroke-width="1.5"/>' : ''}</svg>`;
 reg('comfort', { name: 'Comfort slider (new)', group: 'Onboarding',
-  render: () => `${gearB}${transB}${hd('How awk are you feeling today?', t('profile'))}
+  render: () => `${gearB}${transB}${hd('How awk are you feeling?', t('profile'))}
     <div class="tone-copy" id="toneCopy"></div>
     <div class="slider" id="sl"><div class="trk"></div>${[0, 1, 2].map(i => `<i class="stop" style="left:${i * 50}%"></i><span class="lbl" data-i="${i}" style="left:${i * 50}%">${D.TONES[i].name}</span><button class="hit" data-i="${i}" style="left:${i * 50}%" aria-label="${D.TONES[i].name}"></button>`).join('')}<div class="knob" id="knob"></div></div>
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:arch' }])}`,
   mount: el => {
     const knob = $('#knob', el), lbls = $$('.lbl', el), copy = $('#toneCopy', el);
     const set = i => { S.tone = i; save(); knob.style.left = (i * 50) + '%'; knob.innerHTML = faceSVG(i); lbls.forEach((l, k) => l.classList.toggle('on', k === i));
-      copy.innerHTML = `${D.TONES[i].sub}<br><span style="font:600 12.5px var(--body);color:#888">${['Cue cards stay gentle.', 'Cue cards mix gentle and real talk.', 'Cue cards include the brave questions.'][i]}</span>`; beep('pop'); };
+      copy.innerHTML = D.TONES[i].sub; beep('pop'); };
     $$('.hit', el).forEach(b => b.onclick = () => set(+b.dataset.i)); set(S.tone);
     const sl = $('#sl', el); let drag = false;
     const mv = e => { const r = sl.getBoundingClientRect(); const rot = window.NTA_ROT; const p = rot ? (e.clientY - r.top) / r.height : (e.clientX - r.left) / r.width; const x = rot ? (e.clientY - r.top) / r.height : p; const i = Math.max(0, Math.min(2, Math.round(x * 2))); if (i !== S.tone) set(i); };
@@ -322,19 +321,18 @@ reg('arch', { name: 'Quick quiz (new)', group: 'Onboarding',
 ACT.arch = i => { S.arch = +i; save(); go('archres'); };
 reg('archres', { name: 'Quiz result (new)', group: 'Onboarding',
   render: () => { const a = ARCH[S.arch == null ? 3 : S.arch]; return `${gearB}${hd('You’re…', t('profile'))}
-    <div class="arch"><small>PARENT ARCHETYPE</small><h4>The ${a.k}</h4><p>${a.d}</p><div class="tip">💡 ${a.tip}</div></div>
-    <img class="abs sway" src="assets/who_parent.png" alt="" style="right:80px;bottom:60px;height:200px">
+    <div class="arch"><small>PARENT ARCHETYPE</small><h4>The ${a.k}</h4><p>${a.d}</p></div>
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:consent', cls: 'pulse' }])}`; } });
 
 reg('consent', { name: 'Our promise (new)', group: 'Onboarding',
   render: () => `${gearB}${hd('Our promise to your family', t('profile'))}
     <div class="promise">${[
-      ['#e35e26', 'No ads. Ever.', 'ban', 'Nothing here is selling to your child.'],
-      ['#653781', 'Kids can’t chat freely', 'chat', 'Kids only send stickers and greetings. Grown-ups manage the rest.'],
-      ['#59662e', 'You choose the stories', 'book', 'Every topic can be turned on or off, per child.'],
-      ['#ffcb05', 'Your data stays yours', 'lock', 'Built for India’s DPDP Act. This prototype stores nothing online.'],
-    ].map(([c, h, i, p]) => `<div class="pr" style="--c:${c}">${promiseIcon(i, c)}<b>${h}</b>${p}</div>`).join('')}</div>
-    <div class="agree"><button class="cb ${S.consent ? 'on' : ''}" data-act="agree"><i>${ICON.check.replace('#fff', '#fff')}</i>I’m the parent or guardian, and I agree</button></div>
+      ['#e35e26', 'No ads. Ever.', 'ban'],
+      ['#653781', 'Safe, sticker-only chat', 'chat'],
+      ['#59662e', 'You pick the stories', 'book'],
+      ['#ffcb05', 'Your data stays yours', 'lock'],
+    ].map(([c, h, i]) => `<div class="pr" style="--c:${c}">${promiseIcon(i, c)}<b>${h}</b></div>`).join('')}</div>
+    <div class="agree"><button class="cb ${S.consent ? 'on' : ''}" data-act="agree"><i>${ICON.check}</i>I’m the parent or guardian, and I agree</button></div>
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:age', id: 'nextB', cls: S.consent ? 'pulse' : 'dis' }])}` });
 function promiseIcon(k, c) {
   const m = { ban: '<circle cx="22" cy="22" r="14" fill="none" stroke="#000" stroke-width="4"/><path d="M12 32L32 12" stroke="#000" stroke-width="4"/>', chat: '<path d="M6 8h32v22H20l-9 7v-7H6z" fill="none" stroke="#000" stroke-width="3.5" stroke-linejoin="round"/><path d="M13 16h18M13 22h12" stroke="#000" stroke-width="3"/>', book: '<path d="M4 8h14a4 4 0 014 4v24a4 4 0 00-4-4H4zM40 8H26a4 4 0 00-4 4v24a4 4 0 014-4h14z" fill="none" stroke="#000" stroke-width="3.5" stroke-linejoin="round"/>', lock: '<rect x="8" y="20" width="28" height="20" fill="none" stroke="#000" stroke-width="3.5"/><path d="M14 20v-6a8 8 0 0116 0v6" fill="none" stroke="#000" stroke-width="3.5"/>' }[k];
@@ -491,9 +489,9 @@ function widgetHTML(s, st, idx) {
   switch (s.w) {
     case 'palette': return `<div class="swatches" style="left:60px;top:170px">${PET.map((c, i) => `<button class="sw" style="background:${c};--r:${(i % 5 - 2) * 4}deg" data-c="${c}" aria-label="Colour ${i + 1}"></button>`).join('')}</div>
       <div class="abs" style="left:420px;top:10px;width:420px;height:430px">${flowerSVG({ fills: Array(12).fill(null), stroke: '#fff', style: 'width:420px;height:466px' })}</div>`;
-    case 'choice': return `<div class="banner b3 ${s.bg === 'orange' ? 'alt' : ''}" style="left:96px;top:30px;width:600px;height:78px;font-size:17px">${esc(s.q)}</div>
-      <div class="choice" style="left:96px;top:130px;width:430px">${s.opts.map((o, i) => `<button data-o="${i}">${esc(o[0])}</button>`).join('')}</div><div class="fb" style="left:560px;top:130px;display:none"></div>
-      <img class="art sway" src="${D.ART[['other', 'child', 'parent'][idx % 3]].src}" alt="" style="height:170px;right:50px;bottom:24px">`;
+    case 'choice': return `<div class="banner b3 ${s.bg === 'orange' ? 'alt' : ''}" style="left:166px;top:30px;width:600px;height:78px;font-size:17px">${esc(s.q)}</div>
+      <div class="choice" style="left:251px;top:124px;width:430px">${s.opts.map((o, i) => `<button data-o="${i}">${esc(o[0])}</button>`).join('')}</div><div class="fb" style="left:166px;top:298px;width:600px;text-align:center;display:none"></div>
+      <img class="art sway" src="${D.ART[['other', 'child', 'parent'][idx % 3]].src}" alt="" style="height:110px;right:40px;bottom:16px">`;
     case 'emoflower': return `<div class="abs" style="left:20px;top:0;width:360px">${flowerSVG({ cols: D.EMOS.map(e => e.c), click: true, style: 'width:360px;height:400px' })}</div><div class="ef-panel-slot abs" style="left:420px;top:90px;width:480px"><div class="ef-empty" style="position:static;width:auto;padding-top:60px">${esc(s.t)}<small>Each petal is a feeling.</small></div></div>`;
     case 'cells': { const n = D.STORIES.find(x => x.id === st.id).slides.filter(x => x.w === 'cells'); const k = n.indexOf(s); return cellsSVG(k); }
     case 'voice': return `<div class="banner b3" style="left:96px;top:34px;width:600px;height:70px;font-size:17px">${esc(s.t)}</div>

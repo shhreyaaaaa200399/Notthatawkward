@@ -272,6 +272,122 @@ window.DATA = (() => {
       ],
       talk:[ ['Ask the child','What apps do you use? Has anyone ever messaged you something odd?'],
              ['Ask the grown-up','Agree on one family “safe word” to use if anyone ever feels unsafe online or offline.'] ] },
+
+    { id:'cry', zone:'emotions', minAge:4, mins:3, tone:'Gentle',
+      title:'Do boys cry?',
+      desc:'Tears are how every body lets big feelings out. Boys, girls and grown-ups all cry.',
+      thumb:{ bg:'#96c5d1', art:'kids3', h:160 },
+      slides:[
+        { t:'Arjun fell off his bike. His knee hurt and his eyes got wet.', art:'kids3', side:'r', bg:'peach', b:'b1', bp:[96,70,360,110], h:296, ap:{r:30,b:22} },
+        { w:'choice', q:'A friend says, “Boys don’t cry!” What is true?', bg:'peach', bp:[60,130,0,0], opts:[
+            ['Boys never cry','no','Not true. Every person has tears.'],
+            ['Everyone cries sometimes','ok','Yes! Crying is healthy and normal.'],
+            ['Only babies cry','no','Big kids and grown-ups cry too.'] ] },
+        { t:'Tears are okay. Crying helps feelings leave your body.', art:'kids4', side:'c', bg:'peach', b:'b4', bp:[140,28,640,70], h:282, ap:{l:272,b:22} },
+      ],
+      talk:[ ['Ask the child','What helps you feel better after crying?'],
+             ['Ask the grown-up','Were you ever told not to cry? How did that feel?'] ] },
+
+    { id:'angry', zone:'emotions', minAge:7, mins:4, tone:'Gentle',
+      title:'When the angry monster visits',
+      desc:'Anger is a normal feeling. Learn to spot it in your body and calm it down.',
+      thumb:{ bg:'#e35e26', art:'facesL', h:130 },
+      slides:[
+        { t:'Anger is a feeling, not a bad thing. It shows up hot and loud.', art:'facesL', side:'c', bg:'cream', b:'b4', bp:[170,30,590,84], h:200, ap:{l:360,b:100} },
+        { w:'choice', q:'You feel really angry. What helps most?', bg:'cream', bp:[60,130,0,0], opts:[
+            ['Hit something','no','Not safe. Let’s find a calmer way.'],
+            ['Breathe slowly, then tell someone','ok','Yes! Calm first, words next.'],
+            ['Hide it forever','no','Feelings grow when we hide them. Share it.'] ] },
+        { t:'Take 5 slow breaths. Smell the flower, blow out the candle.', art:'flower', side:'r', bg:'peach', b:'b1', bp:[60,70,360,100], h:400, ap:{l:440,b:0} },
+      ],
+      talk:[ ['Ask the child','Where do you feel anger in your body?'],
+             ['Ask the grown-up','Share what you do when you’re angry. Show a calm-down trick.'] ] },
+
+    { id:'bff', zone:'friendship', minAge:4, mins:3, tone:'Gentle',
+      title:'My friend has a new best friend',
+      desc:'It stings when friends change. Feelings are okay, and there is room for many friends.',
+      thumb:{ bg:'#ffecba', art:'kids4', h:150 },
+      slides:[
+        { t:'Mira’s best friend is playing with someone new. Mira feels left out.', art:'kids4', side:'c', bg:'cream', b:'b4', bp:[170,28,590,92], h:282, ap:{l:272,b:22} },
+        { w:'choice', q:'What could Mira do?', bg:'cream', bp:[60,130,0,0], opts:[
+            ['Say something mean','no','That would hurt everyone, including Mira.'],
+            ['Say, “Can I play too?”','ok','Brave and kind. Asking is a great start.'],
+            ['Stay quiet and sad','no','Try telling a friend or grown-up how you feel.'] ] },
+        { t:'Friendships grow and change. You can have many friends.', art:'kids3', side:'r', bg:'cream', b:'b2', bp:[70,70,420,110], h:296, ap:{r:30,b:22} },
+      ],
+      talk:[ ['Ask the child','Have you ever felt left out? What helped?'],
+             ['Ask the grown-up','Tell a story about a friendship that changed.'] ] },
+
+    { id:'peer', zone:'friendship', minAge:10, mins:5, tone:'Curious',
+      title:'“Everyone is doing it!”',
+      desc:'Friends can pressure each other. How to stay true to yourself and still belong.',
+      thumb:{ bg:'#653781', art:'kids3', h:160 },
+      slides:[
+        { t:'Sometimes a group pushes you to try something you don’t want to.', art:'kids3', side:'r', bg:'navy', b:'b1', bp:[96,70,360,110], h:296, ap:{r:30,b:22} },
+        { w:'choice', q:'Friends say, “Come on, everyone does it!” You feel unsure. You…', bg:'navy', bp:[60,130,0,0], opts:[
+            ['Go along to fit in','no','Fitting in isn’t worth feeling unsafe.'],
+            ['Say, “No thanks, not for me”','ok','Strong! Real friends respect your no.'],
+            ['Laugh it off and leave','ok','Walking away is a fine choice too.'] ] },
+        { t:'Trust your gut. “Everyone” is almost never everyone.', art:'facesR', side:'c', bg:'navy', b:'b5', bp:[150,288,640,84], h:205, ap:{l:322,b:130} },
+      ],
+      talk:[ ['Ask the child','What could you say if a friend pushed you?'],
+             ['Ask the grown-up','When did you feel pressure at their age?'] ] },
+
+    { id:'names', zone:'body', minAge:4, mins:3, tone:'Gentle',
+      title:'Real names for body parts',
+      desc:'Every body part has a proper name. Using real words keeps kids safe and confident.',
+      thumb:{ bg:'#9ca32f', art:'child', h:120 },
+      slides:[
+        { t:'Elbow, knee, nose. Every body part has a real name!', art:'child', side:'c', bg:'olive', b:'b4', bp:[170,30,590,62], h:179, ap:{l:360,b:110} },
+        { t:'That includes private parts too. Their names are penis, vulva and vagina, and they are nothing to be embarrassed about.', art:'parent', side:'c', bg:'olive', b:'b4', bp:[140,28,640,84], h:182, ap:{l:360,b:110} },
+        { t:'Real words help you ask for help, and tell a doctor or grown-up clearly.', art:'child', side:'c', bg:'olive', b:'b4', bp:[170,30,590,62], h:179, ap:{l:360,b:110} },
+      ],
+      talk:[ ['Ask the child','Can you name three body parts out loud?'],
+             ['Ask the grown-up','Say the proper words calmly. Kids copy your tone.'] ] },
+
+    { id:'babies', zone:'body', minAge:7, mins:5, tone:'Curious',
+      title:'Where do babies come from?',
+      desc:'A simple, honest first answer about how a baby begins.',
+      thumb:{ bg:'#fcd3c3', art:'baby', h:150 },
+      slides:[
+        { t:'A baby starts from two tiny cells, far too small to see.', art:'baby', side:'r', bg:'peach', b:'b1', bp:[60,60,420,92], h:262, ap:{r:80,b:60} },
+        { t:'One comes from a woman’s body (an egg). One comes from a man’s body (a sperm). When they join, a baby can begin.', art:'baby', side:'r', bg:'peach', b:'b2', bp:[60,60,440,120], h:262, ap:{r:80,b:60} },
+        { t:'The baby grows for about nine months inside a part called the uterus. Then it is born!', art:'kids3', side:'r', bg:'cream', b:'b3', bp:[96,70,360,120], h:290, ap:{r:30,b:22} },
+        { t:'Got more questions? Keep asking. Questions are always welcome.', art:'kids4', side:'c', bg:'cream', b:'b4', bp:[176,28,586,62], h:282, ap:{l:272,b:22} },
+      ],
+      talk:[ ['Ask the child','What do you already know? What are you still wondering?'],
+             ['Ask the grown-up','Answer simply and truthfully. You can add more detail as they grow.'] ] },
+
+    { id:'myrules', zone:'boundaries', minAge:4, mins:3, tone:'Gentle',
+      title:'My body, my rules',
+      desc:'Your body belongs to you. You decide who touches it, and you can always say no.',
+      thumb:{ bg:'#ffecba', art:'kiss', h:130 },
+      slides:[
+        { t:'Your body is yours. You get to decide about hugs, kisses and touch.', art:'kiss', side:'c', bg:'cream', b:'b4', bp:[170,30,590,84], h:187, ap:{l:360,b:110} },
+        { w:'choice', q:'A relative wants a kiss but you don’t. You can…', bg:'cream', bp:[60,130,0,0], opts:[
+            ['Give a kiss anyway','no','You never have to. Your body, your rules.'],
+            ['Offer a wave or high five','ok','Perfect. Kind and clear.'],
+            ['Say “no thanks” and tell a grown-up','ok','Great. A grown-up will back you up.'] ] },
+        { t:'No one should touch private parts, except to keep you clean or healthy, and always with a grown-up you trust.', art:'parent', side:'c', bg:'cream', b:'b4', bp:[110,30,700,84], h:182, ap:{l:360,b:110} },
+      ],
+      talk:[ ['Ask the child','What can you say instead of a hug?'],
+             ['Ask the grown-up','Promise you will never force a hug or a kiss.'] ] },
+
+    { id:'puberty', zone:'body', minAge:10, mins:6, tone:'Deep',
+      title:'Hair, pimples and mood swings',
+      desc:'What puberty is, why it happens, and how to feel okay about changing.',
+      thumb:{ bg:'#434f64', art:'facesR', h:130 },
+      slides:[
+        { t:'Puberty is when your body starts growing into an adult body. It usually starts between 8 and 14.', art:'facesR', side:'c', bg:'navy', b:'b5', bp:[110,288,700,80], h:205, ap:{l:322,b:130} },
+        { t:'You may get taller, grow hair in new places, sweat more and get pimples. Periods start for girls; voices deepen for boys.', art:'kids3', side:'r', bg:'navy', b:'b2', bp:[70,70,440,130], h:296, ap:{r:30,b:22} },
+        { w:'choice', q:'Your friend is growing faster than you. What’s true?', bg:'navy', bp:[60,130,0,0], opts:[
+            ['Something is wrong with you','no','Nope. Everyone has their own clock.'],
+            ['Everyone changes at their own pace','ok','Yes! Early, late or in between is all normal.'],
+            ['You should hide it','no','Nothing to hide. Talk to someone you trust.'] ] },
+        { t:'Mood swings are normal too. Rest, talk and ask. You’re not alone.', art:'facesL', side:'c', bg:'navy', b:'b4', bp:[170,30,590,84], h:200, ap:{l:360,b:100} },
+      ],
+      talk:[ ['Ask the child','What changes are you curious or nervous about?'],
+             ['Ask the grown-up','Share what puberty was like for you.'] ] },
   ];
 
   /* ---------- dice deck (the physical kit, digitised) ---------- */

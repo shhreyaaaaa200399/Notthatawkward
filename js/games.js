@@ -13,6 +13,10 @@ const GAMES = [
   { id: 'feelings', c: 'pu', n: 'Feelings Flower', p: 'Tap a petal, meet a feeling.', tag: 'SOLO', r: -2, ic: `<svg viewBox="0 0 90 80" width="90">${[0, 1, 2, 3, 4, 5, 6, 7].map(i => `<polygon points="45,40 ${45 + 34 * Math.cos(i * .785 - .2)},${40 + 34 * Math.sin(i * .785 - .2)} ${45 + 34 * Math.cos(i * .785 + .25)},${40 + 34 * Math.sin(i * .785 + .25)}" fill="${['#ffcb05', '#e35e26', '#9ca32f', '#96c5d1', '#ea8259', '#ffecba', '#434f64', '#fff'][i]}"/>`).join('')}<circle cx="45" cy="40" r="12" fill="#96c5d1" stroke="#000" stroke-width="2"/></svg>` },
   { id: 'safe', c: 'ye', n: 'Safe or Not?', p: 'Spot the green flags and the red ones.', tag: 'SOLO', r: 3, ic: `<svg viewBox="0 0 90 80" width="90"><path d="M45 6l30 10v22c0 20-14 32-30 38-16-6-30-18-30-38V16z" fill="#fff" stroke="#000" stroke-width="3"/><path d="M30 40l11 11 20-22" fill="none" stroke="#59662e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>` },
   { id: 'challenge', c: 'nv', n: 'Family Challenge', p: 'One tiny mission for the whole family.', tag: 'WEEKLY', r: -3, ic: `<svg viewBox="0 0 90 80" width="90"><path d="M10 70V30l18 12 17-30 17 30 18-12v40z" fill="#ffcb05" stroke="#000" stroke-width="3" stroke-linejoin="round"/><circle cx="45" cy="55" r="7" fill="#e35e26" stroke="#000" stroke-width="2.5"/></svg>` },
+  { id: 'body', c: 'ol', n: 'Body Facts', p: 'True or false? Real names and real facts.', tag: 'SOLO', r: 2, ic: `<svg viewBox="0 0 90 80" width="90"><rect x="22" y="8" width="46" height="64" rx="6" fill="#fff" stroke="#000" stroke-width="3"/><circle cx="45" cy="28" r="9" fill="#ffcb05" stroke="#000" stroke-width="2.5"/><path d="M32 52h26M32 62h18" stroke="#000" stroke-width="3.5"/></svg>` },
+  { id: 'priv', c: 'pu', n: 'Private or Public?', p: 'Sort what belongs where.', tag: 'SOLO', r: -2, ic: `<svg viewBox="0 0 90 80" width="90"><rect x="10" y="30" width="30" height="40" fill="#ffcb05" stroke="#000" stroke-width="3"/><rect x="50" y="16" width="30" height="54" fill="#96c5d1" stroke="#000" stroke-width="3"/><circle cx="25" cy="50" r="4" fill="#000"/></svg>` },
+  { id: 'wwyd', c: 'or', n: 'What Would You Do?', p: 'Pick the best move in tricky moments.', tag: 'SOLO', r: 3, ic: `<svg viewBox="0 0 90 80" width="90"><circle cx="45" cy="40" r="30" fill="#ffcb05" stroke="#000" stroke-width="3"/><path d="M36 33a9 9 0 1118 2c0 6-9 6-9 12" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/><circle cx="45" cy="58" r="3.4" fill="#000"/></svg>` },
+  { id: 'match', c: 'nv', n: 'Feelings Match', p: 'Flip cards, find the feeling pairs.', tag: 'SOLO', r: -3, ic: `<svg viewBox="0 0 90 80" width="90"><rect x="8" y="14" width="34" height="48" fill="#fff" stroke="#000" stroke-width="3" transform="rotate(-8 25 38)"/><rect x="48" y="14" width="34" height="48" fill="#e35e26" stroke="#000" stroke-width="3" transform="rotate(8 65 38)"/><circle cx="25" cy="38" r="8" fill="#ffcb05" stroke="#000" stroke-width="2.5"/></svg>` },
 ];
 const gcol = { ol: 'var(--olive)', or: 'var(--orange)', pu: 'var(--logo)', ye: 'var(--yellow)', nv: 'var(--navy)' };
 reg('playhub', { name: 'Play · games hub (new)', group: 'Play',
@@ -58,7 +62,7 @@ reg('dice', { name: 'Awk Dice (new)', group: 'Play',
 /* ------------------------------------------------------------------ quiz engine (Myth or Fact + Safe or Not) */
 function quiz(id, title, data, labels) {
   const st = { i: 0, score: 0 };
-  reg(id, { name: id === 'myth' ? 'Myth or Fact? (new)' : 'Safe or Not? (new)', group: 'Play',
+  reg(id, { name: title.h[0] + title.h.slice(1).toLowerCase() + ' (new)', group: 'Play',
     render: () => `${backB}${closeB('go:playhub')}${hd(title.sub, title.h, 'sm')}<img class="deco" src="assets/${id === 'myth' ? 'who_child' : 'who_parent'}.png" style="left:40px;bottom:14px;height:112px" alt=""><img class="deco" src="assets/who_other.png" style="right:44px;bottom:16px;height:100px" alt=""><div id="qz"></div>`,
     mount: el => {
       st.i = 0; st.score = 0; const host = $('#qz', el);
@@ -92,6 +96,81 @@ function quiz(id, title, data, labels) {
 }
 quiz('myth', { h: 'MYTH OR FACT?', sub: 'Is it a whopper or the truth?', tag: 'STATEMENT' }, D.MYTHS, ['MYTH ✕', 'FACT ✓']);
 quiz('safe', { h: 'SAFE OR NOT?', sub: 'Green flag or red flag?', tag: 'SITUATION' }, D.SAFE, ['NOT OK ✕', 'OK ✓']);
+
+quiz('body', { h: 'BODY FACTS', sub: 'True or false? Let’s find out.', tag: 'FACT' }, [
+  ['Every body part has a proper name.', true, 'True! Real names help us stay safe and confident.'],
+  ['Girls and boys all start puberty on the same day.', false, 'False! Everyone has their own clock.'],
+  ['Sweating more is a normal part of growing up.', true, 'True! Bodies change, and a daily wash helps.'],
+  ['Pimples mean you are dirty.', false, 'False! Pimples come from hormones, not dirt.'],
+  ['A baby grows in the uterus.', true, 'True! It takes about nine months.'],
+  ['You can’t ask a doctor about your body.', false, 'False! Doctors love good questions.'],
+], ['FALSE ✕', 'TRUE ✓']);
+quiz('priv', { h: 'PRIVATE OR PUBLIC?', sub: 'Where does it belong?', tag: 'THING' }, [
+  ['Changing your clothes', true, 'Private! Do it in a private space like your room.'],
+  ['Playing in the park', false, 'Public! It’s fine for everyone to see.'],
+  ['Using the toilet', true, 'Private! Close the door.'],
+  ['Your home address', true, 'Private online! Don’t share it with strangers.'],
+  ['Your favourite colour', false, 'Public! Share it freely.'],
+  ['A photo in your underwear', true, 'Private, always. Never share it, and tell a grown-up if asked.'],
+], ['PUBLIC ◯', 'PRIVATE ●']);
+
+/* ------------------------------------------------------------------ What Would You Do? */
+const WWYD = [
+  ['A classmate keeps making jokes about your body.', ['Laugh along', 'Say “Stop, that’s not okay” and tell a teacher', 'Say nothing'], 1, 'Telling them to stop and getting help works best. You deserve respect.'],
+  ['A friend shares a secret that makes you worried for their safety.', ['Keep it secret', 'Tell a trusted grown-up', 'Post about it'], 1, 'Safety secrets are never kept. Telling a grown-up helps your friend.'],
+  ['You see something scary online.', ['Close it and tell a grown-up', 'Share it with friends', 'Keep looking'], 0, 'Close it and tell. You won’t be in trouble.'],
+  ['Someone asks if they can hug you. You don’t want to.', ['Say “No thanks, high five?”', 'Hug anyway', 'Run away silently'], 0, 'Clear and kind. You decide.'],
+  ['You feel embarrassed about a body change.', ['Hide it forever', 'Ask a trusted grown-up', 'Ask a stranger online'], 1, 'Ask someone you trust. Questions are normal.'],
+];
+const wst = { i: 0, score: 0 };
+reg('wwyd', { name: 'What Would You Do? (new)', group: 'Play',
+  render: () => `${backB}${closeB('go:playhub')}${hd('Pick the best move.', 'WHAT WOULD YOU DO?', 'sm')}<div id="wq"></div>`,
+  mount: el => {
+    wst.i = 0; wst.score = 0; const host = $('#wq', el);
+    const show = () => {
+      if (wst.i >= WWYD.length) {
+        const win = wst.score >= 4; if (win) { confetti(70); beep('win'); addStars(2, 'smart choices'); } S.games++; S.week[6] = (S.week[6] || 0) + 1; save();
+        host.innerHTML = `<div class="abs" style="left:0;right:0;top:100px;text-align:center"><div class="disp" style="font-size:72px;color:var(--purple);line-height:1">${wst.score}<span style="font-size:36px;color:#999"> / ${WWYD.length}</span></div>
+          <h3 class="disp" style="font-size:26px;margin:8px 0 20px">${win ? 'Wise choices!' : 'Good try! Let’s play again.'}</h3>
+          <div style="display:flex;gap:14px;justify-content:center"><button class="btn ol" data-again>Play again</button><button class="btn ghost" data-act="go:playhub">More games</button></div></div>`;
+        $('[data-again]', host).onclick = () => { wst.i = 0; wst.score = 0; show(); }; return;
+      }
+      const q = WWYD[wst.i];
+      host.innerHTML = `<div class="prog">${WWYD.map((_, k) => `<i class="${k < wst.i ? 'ok' : k === wst.i ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="qz-card" style="top:106px;min-height:70px;padding:16px 24px"><small>SITUATION ${wst.i + 1} / ${WWYD.length}</small>${esc(q[0])}</div>
+        <div class="wq-opts">${q[1].map((o, k) => `<button class="opt" data-k="${k}">${esc(o)}</button>`).join('')}</div>`;
+      $$('.wq-opts .opt', host).forEach(b => b.onclick = () => {
+        const k = +b.dataset.k, ok = k === q[2]; if (ok) wst.score++; beep(ok ? 'ok' : 'no');
+        host.insertAdjacentHTML('beforeend', `<div class="qz-fb ${ok ? 'good' : 'bad'}" style="top:106px"><h4>${ok ? 'Yes!' : 'Hmm, not quite.'}</h4><p>${esc(q[3])}</p><button class="btn ye sm" data-nx>${wst.i === WWYD.length - 1 ? 'See score' : 'Next'}</button></div>`);
+        $('[data-nx]', host).onclick = () => { wst.i++; show(); };
+      });
+    };
+    show();
+  } });
+
+/* ------------------------------------------------------------------ Feelings Match (memory) */
+const MATCH = [['😊', 'Happy'], ['😢', 'Sad'], ['😠', 'Angry'], ['😨', 'Scared'], ['😳', 'Embarrassed'], ['😴', 'Tired']];
+reg('match', { name: 'Feelings Match (new)', group: 'Play',
+  render: () => `${backB}${closeB('go:playhub')}${hd('Find the pairs.', 'FEELINGS MATCH', 'sm')}<div class="mm-grid" id="mm"></div><div class="mm-info" id="mmi">Pairs found: 0 / ${MATCH.length}</div>`,
+  mount: el => {
+    const host = $('#mm', el), info = $('#mmi', el);
+    const cards = MATCH.flatMap(([e, n], i) => [{ i, f: e, face: 'emoji' }, { i, f: n, face: 'word' }]).sort(() => Math.random() - .5);
+    host.innerHTML = cards.map((c, k) => `<button class="mc ${c.face}" data-k="${k}"><span class="b">?</span><span class="f">${c.f}</span></button>`).join('');
+    let open = [], done = 0, lock = false;
+    $$('.mc', host).forEach(b => b.onclick = () => {
+      if (lock || b.classList.contains('up') || b.classList.contains('ok')) return; b.classList.add('up'); beep('tap'); open.push(b);
+      if (open.length === 2) {
+        const [a, c] = open, m = cards[+a.dataset.k].i === cards[+c.dataset.k].i; lock = true;
+        setTimeout(() => {
+          if (m) { a.classList.add('ok'); c.classList.add('ok'); done++; beep('ok'); info.textContent = `Pairs found: ${done} / ${MATCH.length}`;
+            if (done === MATCH.length) { confetti(70); beep('win'); S.games++; S.week[6] = (S.week[6] || 0) + 1; save(); addStars(2, 'matching every feeling'); info.textContent = 'You found them all!'; } }
+          else { a.classList.remove('up'); c.classList.remove('up'); beep('no'); }
+          open = []; lock = false;
+        }, m ? 350 : 800);
+      }
+    });
+  } });
+
 
 /* ------------------------------------------------------------------ Feelings flower */
 reg('feelings', { name: 'Feelings Flower (new)', group: 'Play',
