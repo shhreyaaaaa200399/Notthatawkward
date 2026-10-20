@@ -697,3 +697,47 @@ img{-webkit-user-drag:none;user-drag:none}
 .splash.enter .hint,.splash.enter .go{animation:none;opacity:0}
 .splash.done.enter .hint{animation:rise .6s both}
 .splash.done.enter .go{animation:rise .6s both,nudge 1.2s .6s ease-in-out infinite}
+
+/* ---- v3.1: one header row, scrolling game row, calm transitions ---- */
+.ib.gear{top:20px}.ib.tr,.ib.tr.close{top:22px}
+.chip{top:44px;transform:translateY(-50%)}
+.eyebrow.low{top:78px}
+.ph-grid{position:absolute;left:0;right:0;width:auto;margin:0;top:150px;height:212px;display:flex;flex-wrap:nowrap;justify-content:flex-start;gap:22px;padding:14px 64px 20px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;cursor:grab}
+.ph-grid::-webkit-scrollbar{display:none}
+.ph-grid:active{cursor:grabbing}
+.pg{flex:none;width:168px;height:176px;padding:14px;scroll-snap-align:center;margin-top:6px}
+.pg h5{font-size:20px;max-width:none}
+.pg p{font-size:11px;max-width:none}
+.pg .ic{left:0;right:0;bottom:10px;display:grid}.pg .ic svg{width:64px}
+.pg .tg{left:auto;right:8px;top:8px;bottom:auto}
+.ph-nv{position:absolute;top:226px;width:38px;height:38px;border-radius:50%;background:#fff;box-shadow:0 0 0 1px var(--ink);display:grid;place-items:center;z-index:6;transition:transform .15s}
+.ph-nv svg{width:18px;height:18px}.ph-nv:hover{transform:scale(1.15)}
+.ph-nv.l{left:14px}.ph-nv.r{right:14px}
+.ph-bar{bottom:14px}
+.screen.quick *{animation-delay:0s!important}
+.screen.quick .who,.screen.quick .lang,.screen.quick .pg,.screen.quick .tile,.screen.quick .mh>*,.screen.quick .pr,.screen.quick .opt{animation-duration:.3s}
+
+/* ---- splash: keep the people, make it pretty ---- */
+.splash{background:radial-gradient(circle at 50% 44%,#fff 0,#fff6df 55%,#fde0cf 130%)}
+.splash.skip .sf{display:block;opacity:1;animation:none}
+.splash.skip .sfl{left:46px;top:196px}.splash.skip .sfr{left:686px;top:178px}
+.splash.skip .sf .em{display:none}
+.splash.done .sf img{animation:sway 4.5s ease-in-out infinite}
+.splash.done .sfr img{animation-delay:-2s}
+.splash.done .sf:hover img{animation:giggle .5s}
+.splash .bgfx{position:absolute;inset:0;pointer-events:none;z-index:0}
+.splash .bgfx i{position:absolute;display:block;opacity:.0;animation:bgIn .9s both,drift 7s ease-in-out infinite}
+.splash .bgfx .b1{left:-40px;top:-50px;width:190px;height:190px;border-radius:50%;background:#ffcb05;animation-delay:.2s,0s}
+.splash .bgfx .b2{right:-50px;bottom:-60px;width:230px;height:230px;border-radius:50%;background:#96c5d1;animation-delay:.4s,-2s}
+.splash .bgfx .b3{right:70px;top:26px;width:70px;height:70px;background:#9ca32f;clip-path:polygon(50% 0,100% 100%,0 100%);animation-delay:.6s,-3s}
+.splash .bgfx .b4{left:90px;bottom:34px;width:54px;height:54px;background:#e35e26;clip-path:polygon(0 12%,100% 0,88% 100%,10% 88%);animation-delay:.8s,-4s}
+.splash .bgfx .b5{left:228px;top:34px;width:34px;height:34px;background:#653781;border-radius:50%;animation-delay:1s,-1s}
+.splash .bgfx .b6{right:210px;bottom:30px;width:40px;height:40px;background:#ffcb05;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation-delay:1.2s,-5s}
+@keyframes bgIn{to{opacity:.85}}
+@keyframes drift{50%{transform:translateY(-10px) rotate(6deg)}}
+.splash .lg,.splash .sf{z-index:2}
+/* play cards: more room so icons never touch the copy */
+.pg{height:190px}.ph-grid{height:226px}
+.pg p{max-width:132px}
+.pg .ic svg{width:54px}
+.splash .bgfx .b4{left:30px;bottom:auto;top:112px}

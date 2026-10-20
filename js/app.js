@@ -163,12 +163,14 @@ function render(id, opts) {
 }
 function go(id, opts = {}, o = {}) {
   if (!SC[id]) return; if (busy) return; busy = true;
-  const w = $('#wipe'); w.className = 'in';
-  setTimeout(() => {
+  const swipe = SC[id].group === 'Onboarding';   // the big wipe is only for the starting screens
+  const w = $('#wipe'), swap = () => {
     if (!o.noPush && cur.id && cur.id !== id) hist.push({ id: cur.id, opts: cur.opts });
-    closeModal(); render(id, opts); w.className = 'out';
-    setTimeout(() => { w.className = ''; busy = false; }, 420);
-  }, 330);
+    closeModal(); render(id, opts);
+  };
+  if (!swipe) { swap(); const sc = $('#screens .screen'); if (sc) sc.classList.add('quick'); busy = false; return; }
+  w.className = 'in';
+  setTimeout(() => { swap(); w.className = 'out'; setTimeout(() => { w.className = ''; busy = false; }, 420); }, 330);
 }
 function back() { const h = hist.pop(); if (h) go(h.id, h.opts, { noPush: true }); else go('hub', {}, { noPush: true }); }
 const rerender = () => render(cur.id, cur.opts);
@@ -245,7 +247,7 @@ const SPLASH_SCRIPT = [
   { who: 'o9', em: '😅', tx: 'Look, a bird!' },
 ];
 reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
-  render: () => `<div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
+  render: () => `<div class="bgfx"><i class="b1"></i><i class="b2"></i><i class="b3"></i><i class="b4"></i><i class="b5"></i><i class="b6"></i></div><div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
     <div class="lg" id="lg">${LOGO.parts.map(([f, x, y, w]) => `<img class="lp" src="assets/logo/${f}.png" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%" alt="">`).join('')}
       ${Object.entries(LOGO.bub).map(([f, [x, y, w]]) => `<div class="lb ${f}" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%"><img src="assets/logo/${f}.png" alt=""><span class="tx"></span></div>`).join('')}</div>
     <div class="shead" role="img" aria-label="Not That Awk"></div>
@@ -271,7 +273,9 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
       face[f].classList.remove('talk'); void face[f].offsetWidth; face[f].classList.add('talk'); beep('pop');
     };
     const finale = () => {
-      [fl, fr].forEach((f, i) => f.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${i ? 220 : -220}px) rotate(${i ? 12 : -12}deg)`, opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.5,0,.8,.3)', fill: 'forwards' }));
+      // the families step to either side of the logo and stay
+      [[fl, 120, 206, 46, 196], [fr, 610, 78, 686, 178]].forEach(([f, l0, t0, l1, t1]) => { f.style.animation = 'none'; f.style.opacity = 1; f.animate([{ left: l0 + 'px', top: t0 + 'px' }, { left: l1 + 'px', top: t1 + 'px' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'forwards' }); $('.em', f).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }); });
+      el.classList.add('fin');
       Object.keys(bubs).forEach((f, i) => {
         const b = bubs[f], st = start[f], { dx, dy } = place(f); $('.tx', b).style.opacity = 0;
         b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });

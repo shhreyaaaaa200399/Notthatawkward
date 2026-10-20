@@ -20,9 +20,19 @@ const GAMES = [
 ];
 const gcol = { ol: 'var(--olive)', or: 'var(--orange)', pu: 'var(--logo)', ye: 'var(--yellow)', nv: 'var(--navy)' };
 reg('playhub', { name: 'Play · games hub (new)', group: 'Play',
-  render: () => `${gearB}${closeB('go:hub')}${chipHTML('sm')}${hd('Pick a game!', 'PLAY', 'sm')}
-    <div class="ph-grid">${GAMES.map(g => `<button class="pg ${g.c === 'ye' ? 'ye' : ''}" style="background:${gcol[g.c]};--r:${g.r}deg" data-act="go:${g.id}"><span class="tg">${g.tag}</span><h5>${g.n}</h5><p>${g.p}</p><div class="ic">${g.ic}</div></button>`).join('')}</div>
-    <div class="ph-bar"><button data-act="go:stickers">${ICON.sticker} Sticker book <b style="color:var(--orange)">${S.stk.length}/12</b></button><button data-act="go:hub">${ICON.home} Home</button></div>` });
+  render: () => `${gearB}${closeB('go:hub')}${chipHTML('sm')}${hd('Pick a game!', 'PLAY', 'sm low')}
+    <button class="ph-nv l" data-act="phs:-1" aria-label="Scroll games left">${ICON.chevL || '‹'}</button><button class="ph-nv r" data-act="phs:1" aria-label="Scroll games right">${ICON.chevR || '›'}</button>
+    <div class="ph-grid" id="phg">${GAMES.map(g => `<button class="pg ${g.c === 'ye' ? 'ye' : ''}" style="background:${gcol[g.c]};--r:${g.r}deg" data-act="go:${g.id}"><span class="tg">${g.tag}</span><h5>${g.n}</h5><p>${g.p}</p><div class="ic">${g.ic}</div></button>`).join('')}</div>
+    <div class="ph-bar"><button data-act="go:stickers">${ICON.sticker} Sticker book <b style="color:var(--orange)">${S.stk.length}/12</b></button><button data-act="go:hub">${ICON.home} Home</button></div>`,
+  mount: el => {
+    const row = $('#phg', el); let down = false, sx = 0, sl = 0, moved = false;
+    row.addEventListener('wheel', e => { if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { row.scrollLeft += e.deltaY; e.preventDefault(); } }, { passive: false });
+    row.addEventListener('pointerdown', e => { down = true; moved = false; sx = e.clientX; sl = row.scrollLeft; });
+    row.addEventListener('pointermove', e => { if (down && Math.abs(e.clientX - sx) > 6) { moved = true; row.scrollLeft = sl - (e.clientX - sx) * 932 / $('#stage').getBoundingClientRect().width; } });
+    addEventListener('pointerup', () => { down = false; }, { once: false });
+    row.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+  } });
+ACT.phs = d => { const r = $('#phg'); if (r) r.scrollBy({ left: +d * 360, behavior: 'smooth' }); beep('tap'); };
 
 /* ------------------------------------------------------------------ Awk Dice */
 const FACE_ROT = [[0, 0], [0, -90], [0, -180], [0, 90], [-90, 0], [90, 0]];
