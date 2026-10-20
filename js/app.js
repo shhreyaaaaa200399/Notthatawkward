@@ -596,10 +596,11 @@ function buildSide() {
   $$('#side nav button').forEach(b => b.onclick = () => { go(b.dataset.id, b.dataset.id === 'story' || b.dataset.id === 'done' ? { id: 'colours' } : {}); });
 }
 function fit() {
-  const vp = $('#viewport'), dev = $('#device'); const w = vp.clientWidth, h = vp.clientHeight; const pad = 36;
-  const portrait = h > w * 1.1 && w < 900; window.NTA_ROT = portrait;
-  const W = portrait ? h : w, H = portrait ? w : h; const sc = Math.min((W - (portrait ? 8 : pad * 2)) / 932, (H - (portrait ? 8 : pad * 2)) / 430);
-  window.NTA_SCALE = sc; dev.style.transform = `rotate(${portrait ? 90 : 0}deg) scale(${sc})`;
+  const vp = $('#viewport'), dev = $('#device'); const w = vp.clientWidth, h = vp.clientHeight;
+  const portrait = h > w * 1.1 && w < 900; window.NTA_ROT = false;
+  const pad = portrait ? 6 : 28; const sc = Math.min((w - pad * 2) / 932, (h - pad * 2) / 430);
+  window.NTA_SCALE = sc; dev.style.transform = `scale(${sc})`;
+  const hint = $('#rotHint'); if (hint) hint.hidden = !portrait;
 }
 function boot() {
   buildSide(); fit(); addEventListener('resize', fit);

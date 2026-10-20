@@ -608,3 +608,7 @@ img{-webkit-user-drag:none;user-drag:none}
 .set nav button svg{width:18px;height:18px;flex:none}
 .deco{position:absolute;pointer-events:none}
 .mh{top:98px}
+
+#rotHint{position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom,0px));text-align:center;color:#d9d2e8;font:700 13px var(--body);z-index:25;pointer-events:none}
+#rotHint b{display:inline-block;animation:rotp 2.2s ease-in-out infinite}
+@keyframes rotp{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
