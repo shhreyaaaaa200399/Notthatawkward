@@ -741,3 +741,12 @@ img{-webkit-user-drag:none;user-drag:none}
 .pg p{max-width:132px}
 .pg .ic svg{width:54px}
 .splash .bgfx .b4{left:30px;bottom:auto;top:112px}
+
+/* ---- v3.2: top bar = settings (left) · avatar + language/close (right); content sits lower ---- */
+.chip,.chip.sm{left:auto;right:80px;top:44px;transform:translateY(-50%)}
+.chip b{display:none}
+.chip img,.chip.sm img{height:46px}
+.tiles{top:150px}
+.tile .face{height:150px}
+.chip,.chip.sm{top:21px;transform:none}
+.tile .face{height:157px}
