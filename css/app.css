@@ -647,3 +647,53 @@ img{-webkit-user-drag:none;user-drag:none}
 .wq-opts{top:236px}
 .ph-grid{width:890px;margin-left:-445px}
 .pg p{max-width:96px;font-size:9.5px}.pg .ic svg{width:48px}.pg .ic{right:4px}
+
+/* ---- v3 splash: logo assembled by the conversation ---- */
+.splash .sf{position:absolute;opacity:0;animation:sfIn .8s .1s cubic-bezier(.2,1,.3,1.15) both}
+.splash .sfl{left:120px;top:206px;width:190px}.splash .sfr{left:610px;top:78px;width:232px}
+.splash .sf img{width:100%;display:block}
+.splash .sf.talk img{animation:talkB .7s ease-in-out 2}
+.splash .sf .em{position:absolute;right:-6px;top:-22px;font-size:30px;opacity:0;transform:scale(0)}
+.splash .sf .em.on{animation:emPop .6s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes sfIn{from{opacity:0;transform:translateY(40px) scale(.8)}to{opacity:1;transform:none}}
+@keyframes talkB{25%{transform:rotate(-4deg) scale(1.05)}60%{transform:rotate(3deg) scale(1.03) translateY(-4px)}}
+@keyframes emPop{from{opacity:0;transform:scale(0) rotate(-40deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+.splash .lg{position:absolute}
+.splash .lp{position:absolute;opacity:0;height:auto;transition:transform .25s cubic-bezier(.2,1.8,.4,1)}
+.splash .lb{position:absolute;opacity:0}.splash .lb img{width:100%;display:block}
+.splash .lb .tx{position:absolute;left:12%;right:12%;top:50%;transform:translateY(-50%);text-align:center;font:800 8px/1.15 var(--body);color:#fff;transition:opacity .3s}
+.splash .lb.o9 .tx{left:16%;right:8%}
+.splash .hint{left:0;right:0;bottom:46px;text-align:center;font:800 11px var(--body);letter-spacing:2px;color:#8a7a9c;opacity:0}
+.splash .go{opacity:0}
+.splash.done .lp,.splash.done .lb{opacity:1}
+.splash.done .hint{animation:rise .6s both}.splash.done .go{animation:rise .6s both,nudge 1.2s .6s ease-in-out infinite}
+.splash.skip .sf{display:none}.splash.skip .lp,.splash.skip .lb{opacity:1}.splash.skip .lb .tx{opacity:0}
+.splash.done .lp:hover{transform:rotate(-5deg) scale(1.07) translateY(-4px)}
+.splash.done .lp:active{transform:scale(.94)}
+
+/* ---- v3 delight: progressive reveals + micro-interactions ---- */
+@keyframes cin{from{opacity:0;transform:translateY(26px) scale(.82) rotate(var(--r,0deg))}}
+.who3 .who,.langs .lang,.promise .pr,.opts .opt,.tiles .tile,.ph-grid .pg,.users>*,.avgrid>*,.mh>*,.pills button{animation:cin .55s cubic-bezier(.2,1.5,.4,1) backwards}
+.who3 .who:nth-child(1),.langs .lang:nth-child(1),.promise .pr:nth-child(1),.opts .opt:nth-child(1),.tiles .tile:nth-child(1),.ph-grid .pg:nth-child(1),.users>*:nth-child(1),.avgrid>*:nth-child(1),.mh>*:nth-child(1){animation-delay:.35s}
+.who3 .who:nth-child(2),.langs .lang:nth-child(2),.promise .pr:nth-child(2),.opts .opt:nth-child(2),.tiles .tile:nth-child(2),.ph-grid .pg:nth-child(2),.users>*:nth-child(2),.avgrid>*:nth-child(2),.mh>*:nth-child(2){animation-delay:.6s}
+.who3 .who:nth-child(3),.langs .lang:nth-child(3),.promise .pr:nth-child(3),.opts .opt:nth-child(3),.tiles .tile:nth-child(3),.ph-grid .pg:nth-child(3),.users>*:nth-child(3),.avgrid>*:nth-child(3),.mh>*:nth-child(3){animation-delay:.85s}
+.promise .pr:nth-child(4),.opts .opt:nth-child(4),.ph-grid .pg:nth-child(4),.users>*:nth-child(4),.avgrid>*:nth-child(4){animation-delay:1.1s}
+.ph-grid .pg:nth-child(5),.avgrid>*:nth-child(5){animation-delay:1.3s}.ph-grid .pg:nth-child(n+6),.avgrid>*:nth-child(n+6){animation-delay:1.5s}
+.langs .lang:nth-child(n+4){animation-delay:1s}
+.agree{animation:cin .6s 1.7s cubic-bezier(.2,1.5,.4,1) backwards}
+.cstack>*{animation:cin .55s cubic-bezier(.2,1.5,.4,1) backwards}
+.cstack>*:nth-child(2){animation-delay:.3s}.cstack>*:nth-child(3){animation-delay:.9s}.cstack>div:last-child{animation-delay:1.5s}
+.arch{animation:cin .7s .3s cubic-bezier(.2,1.5,.4,1) backwards}
+.btn,.foot button,.opt,.lang,.who,.pg,.tile{transition:transform .18s cubic-bezier(.2,1.8,.4,1),box-shadow .18s}
+.btn:active,.foot button:active,.opt:active,.lang:active{transform:scale(.94)!important}
+.btn:hover,.foot button:hover{animation:wig .5s}
+@keyframes wig{25%{transform:rotate(-2.5deg) scale(1.04)}60%{transform:rotate(2deg) scale(1.04)}}
+.who:active,.pg:active,.tile:active{transform:scale(.96)!important}
+.spk{position:absolute;width:8px;height:8px;pointer-events:none;z-index:70;margin:-4px;transform:rotate(45deg);animation:spk .55s ease-out forwards}
+@keyframes spk{to{transform:translate(var(--dx),var(--dy)) rotate(300deg) scale(0);opacity:0}}
+.ib:hover{animation:wig .5s}
+.dots i{transition:all .3s cubic-bezier(.2,1.8,.4,1)}
+.sway{animation:sway 4s ease-in-out infinite}
+.splash.enter .hint,.splash.enter .go{animation:none;opacity:0}
+.splash.done.enter .hint{animation:rise .6s both}
+.splash.done.enter .go{animation:rise .6s both,nudge 1.2s .6s ease-in-out infinite}

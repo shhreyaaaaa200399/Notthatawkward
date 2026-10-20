@@ -174,6 +174,16 @@ function back() { const h = hist.pop(); if (h) go(h.id, h.opts, { noPush: true }
 const rerender = () => render(cur.id, cur.opts);
 
 /* delegated actions */
+/* click sparkles: a tiny burst wherever you tap */
+document.addEventListener('pointerdown', e => {
+  const st = e.target.closest && e.target.closest('#stage'); if (!st) return;
+  const r = st.getBoundingClientRect(), k = 932 / r.width, x = (e.clientX - r.left) * k, y = (e.clientY - r.top) * k;
+  for (let i = 0; i < 7; i++) {
+    const d = document.createElement('i'); d.className = 'spk'; const a = (i / 7) * 6.283 + Math.random(), dist = 22 + Math.random() * 22;
+    d.style.cssText = `left:${x}px;top:${y}px;--dx:${Math.cos(a) * dist}px;--dy:${Math.sin(a) * dist}px;background:${['#ffcb05', '#e35e26', '#9ca32f', '#96c5d1', '#592898'][i % 5]}`;
+    st.appendChild(d); setTimeout(() => d.remove(), 600);
+  }
+});
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-act]'); if (!b) return;
   const i = b.dataset.act.indexOf(':'); const name = i < 0 ? b.dataset.act : b.dataset.act.slice(0, i); const arg = i < 0 ? '' : b.dataset.act.slice(i + 1);
@@ -227,12 +237,57 @@ function flowerSVG(o = {}) {
 window.NTA_FLOWER = flowerSVG;
 
 /* ------------------------------------------------------------------ SCREENS: onboarding */
+const LOGO = { W: 994, H: 820, parts: [['p1', 165, 27, 312], ['p2', 479, 45, 174], ['p3', 460, 266, 206], ['p6', 61, 420, 144], ['p5', 197, 405, 157], ['p4', 276, 391, 253], ['p7', 500, 472, 226], ['p8', 721, 493, 199]], bub: { o9: [668, 230, 203], o10: [52, 592, 237] } };
+const SPLASH_SCRIPT = [
+  { who: 'o10', em: '🤔', tx: 'Where do babies come from?' },
+  { who: 'o9', em: '😳', tx: 'Umm… ask your dad!' },
+  { who: 'o10', em: '🥺', tx: 'But whyyy?' },
+  { who: 'o9', em: '😅', tx: 'Look, a bird!' },
+];
 reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
-  render: () => `<img class="abs fl face" src="assets/faces_left.png" alt=""><img class="abs logo" src="assets/logo_not.png" alt="NOT"><img class="abs fr face" src="assets/faces_right.png" alt="">
-    <div class="abs tag">NOT <span>THAT AWK.</span></div>
-    <div class="abs sub">Sex-ed made approachable, for every Indian home</div>
+  render: () => `<div class="sf sfl"><img src="assets/faces_left.png" alt=""><b class="em"></b></div><div class="sf sfr"><img src="assets/faces_right.png" alt=""><b class="em"></b></div>
+    <div class="lg" id="lg">${LOGO.parts.map(([f, x, y, w]) => `<img class="lp" src="assets/logo/${f}.png" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%" alt="">`).join('')}
+      ${Object.entries(LOGO.bub).map(([f, [x, y, w]]) => `<div class="lb ${f}" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%"><img src="assets/logo/${f}.png" alt=""><span class="tx"></span></div>`).join('')}</div>
+    <div class="shead" role="img" aria-label="Not That Awk"></div>
+    <div class="abs hint">TAP TO START</div>
     <svg class="abs go" viewBox="0 0 56 24"><path d="M2 12h44M36 3l14 9-14 9" stroke="#000" stroke-width="5" fill="none"/></svg>`,
-  mount: el => { el.onclick = () => { beep('pop'); go('intro'); }; } });
+  mount: el => {
+    const lg = $('#lg', el), K = 0.37, LX = (932 - LOGO.W * K) / 2, LY = 30;
+    lg.style.cssText = `left:${LX}px;top:${LY}px;width:${LOGO.W * K}px;height:${LOGO.H * K}px`;
+    const fl = $('.sfl', el), fr = $('.sfr', el), em = { o10: $('.em', fl), o9: $('.em', fr) }, face = { o10: fl, o9: fr };
+    // where each bubble starts: beside the speaker, flipped for the parent so its tail points at them
+    const start = { o10: { cx: 330, cy: 150, sc: 1.7, flip: 1, rot: -6 }, o9: { cx: 600, cy: 262, sc: 1.7, flip: -1, rot: 5 } };
+    const bubs = {}; $$('.lb', el).forEach(b => bubs[[...b.classList].find(c => c.startsWith('o'))] = b);
+    const fin = f => { const [x, y, w] = LOGO.bub[f]; const h = $('img', bubs[f]).naturalHeight || 200; return { cx: LX + (x + w / 2) * K, cy: LY + (y + h / 2) * K }; };
+    const timers = []; let done = false, ready = false;
+    const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+    const place = f => { const st = start[f], e = fin(f); return { dx: st.cx - e.cx, dy: st.cy - e.cy }; };
+    const pop = (f, line) => {
+      const b = bubs[f], st = start[f], { dx, dy } = place(f), tx = $('.tx', b);
+      tx.textContent = line.tx; tx.style.opacity = 1; tx.style.transform = st.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
+      b.style.opacity = 1; b.style.zIndex = 5;
+      b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * .2},.2) rotate(${st.rot}deg)`, opacity: 0 }, { transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)`, opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,1.7,.4,1)', fill: 'forwards' });
+      const e = em[f]; e.textContent = line.em; e.classList.remove('on'); void e.offsetWidth; e.classList.add('on');
+      face[f].classList.remove('talk'); void face[f].offsetWidth; face[f].classList.add('talk'); beep('pop');
+    };
+    const finale = () => {
+      [fl, fr].forEach((f, i) => f.animate([{ transform: 'none', opacity: 1 }, { transform: `translateX(${i ? 220 : -220}px) rotate(${i ? 12 : -12}deg)`, opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.5,0,.8,.3)', fill: 'forwards' }));
+      Object.keys(bubs).forEach((f, i) => {
+        const b = bubs[f], st = start[f], { dx, dy } = place(f); $('.tx', b).style.opacity = 0;
+        b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${st.flip * st.sc},${st.sc}) rotate(${st.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });
+      });
+      $$('.lp', el).forEach((l, i) => l.animate([{ transform: 'translateY(-70px) scale(.3) rotate(-14deg)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 650, delay: 500 + i * 90, easing: 'cubic-bezier(.2,1.8,.4,1)', fill: 'forwards' }));
+      at(1500, () => { beep('win'); confetti(36); });
+      at(2100, () => { ready = true; el.classList.add('done'); });
+    };
+    const finish = () => {
+      timers.forEach(clearTimeout); done = true; ready = true;
+      $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); el.classList.add('done', 'skip');
+    };
+    let t = 700; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1250; });
+    at(t + 300, finale);
+    el.onclick = () => { if (ready) { beep('pop'); go('intro'); } else if (!done) finish(); else { beep('pop'); go('intro'); } };
+  } });
 
 const INTRO = [
   { h: 'Kids have <em>questions.</em>', p: 'Big ones, small ones, “WHAT?!” ones.', art: 'kids4', ah: 170 },
