@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Not That Awk — Prototype</title>
+<meta name="description" content="Interactive prototype for Not That Awk: helping parents and kids talk about sex education without the awkward.">
+<link rel="icon" href="assets/av_fox.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div id="app">
+  <aside id="side" aria-label="Screen index">
+    <header>
+      <b>NOT <i>THAT</i> AWK.</b>
+      <p>Interactive prototype · click any screen to jump to it. Now on: <span id="curName" style="color:#fff;font-weight:600"></span></p>
+    </header>
+    <nav></nav>
+    <footer><button id="sideHide">Hide panel (P)</button><button id="resetBtn">Reset demo</button></footer>
+  </aside>
+  <main id="viewport">
+    <button id="sideToggle" aria-label="Show screen index">☰</button>
+    <div id="device">
+      <div id="stage">
+        <div id="screens"></div>
+        <div id="modal"></div>
+        <div id="wipe"><i></i><i></i><i></i></div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/games.js"></script>
+<script>NTA_boot();</script>
+</body>
+</html>
