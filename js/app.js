@@ -150,6 +150,19 @@ function addStars(n, why) {
 const SC = {}; const ORDER = []; let cur = { id: null, opts: {} }; const hist = []; let busy = false; let langReturn = null;
 const reg = (id, def) => { SC[id] = def; ORDER.push(id); };
 const ACT = {};
+/* vertical rhythm: sit the main content block in the middle of the space between the title and the footer buttons */
+const NO_CENTER = new Set(['splash', 'intro', 'story', 'done', 'goodbye', 'learn', 'topics', 'dice', 'settings', 'playhub', 'challenge', 'awkie', 'ama', 'meethub']);
+function centerContent(el) {
+  if (!el.isConnected || el.dataset.centred === '1') return;
+  const kids = [...el.children].filter(k => getComputedStyle(k).position === 'absolute' && !k.matches('.eyebrow,.ib,.chip,.dots,.foot,.ph-bar,.ph-nv,.deco,.toast,.confetti,.floaty,.mascot,.hint,.go'));
+  if (!kids.length) return;
+  const eb = [...el.querySelectorAll(':scope>.eyebrow')].reduce((m, e) => Math.max(m, e.offsetTop + e.offsetHeight), 70);
+  const ft = [...el.querySelectorAll(':scope>.foot,:scope>.dots,:scope>.ph-bar')].reduce((m, e) => Math.min(m, e.offsetTop), 392);
+  const top = Math.min(...kids.map(k => k.offsetTop)), bot = Math.max(...kids.map(k => k.offsetTop + k.offsetHeight));
+  const zoneTop = eb + 10, zoneBot = ft - 10, d = Math.round((zoneTop + (zoneBot - zoneTop - (bot - top)) / 2) - top);
+  if (d > 6 && d < 130) { kids.forEach(k => { k.style.top = (k.offsetTop + d) + 'px'; }); }
+  el.dataset.centred = '1';
+}
 function render(id, opts) {
   const def = SC[id]; const stage = $('#screens'); stage.innerHTML = '';
   const el = document.createElement('section');
@@ -157,6 +170,7 @@ function render(id, opts) {
   el.innerHTML = def.render(opts || {}); stage.appendChild(el);
   cur = { id, opts: opts || {} };
   if (def.mount) def.mount(el, opts || {});
+  if (!NO_CENTER.has(id)) { requestAnimationFrame(() => centerContent(el)); setTimeout(() => centerContent(el), 250); }
   $$('#side nav button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
   const lab = $('#curName'); if (lab) lab.textContent = def.name;
   try { speechSynthesis.cancel(); } catch (e) {}
@@ -294,7 +308,7 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
 const INTRO = [
   { h: 'Kids have <em>questions.</em>', p: 'Big ones, small ones, “WHAT?!” ones.', art: 'kids4', ah: 170 },
   { h: 'Grown-ups get <em>nervous.</em>', p: 'Most don’t know how to start “The Talk”.', art: 'facesL', ah: 150 },
-  { h: 'Let’s make it <em>not that awk.</em>', p: 'Tiny chats. Stories. Games. Giggles.', art: 'flower', ah: 190 },
+  { h: 'Let’s make it <em>not that awk.</em>', p: 'Tiny chats. Stories. Games. Giggles.', art: 'flower', ah: 176 },
 ];
 reg('intro', { name: 'Welcome (new)', group: 'Onboarding', cls: 'intro',
   render: () => `<div class="copy"></div><div class="art"></div><div class="dots dk">${INTRO.map(() => '<i></i>').join('')}</div>
@@ -340,7 +354,7 @@ ACT.whonext = () => go(S.roleChosen === 'child' ? 'kidgate' : 'comfort');
 
 reg('kidgate', { name: 'Grown-up nearby? (new)', group: 'Onboarding',
   render: () => `<div class="cstack"><img class="sway" src="assets/who_child.png" alt="" style="height:130px"><h2 class="disp">Is a <span style="color:var(--orange)">grown-up</span> nearby?</h2>
-      <p>Get one to say hi first. This app is for talking <b>together</b>.</p>
+      <p>Get one to say hi first. We talk <b>together</b>.</p>
       <div style="display:flex;gap:14px;justify-content:center"><button class="btn ol" data-act="go:consent">Yes, they’re here</button><button class="btn ghost" data-act="kidno">Not yet</button></div></div>${foot([{ l: t('back'), act: 'back', cls: 'lt' }])}`,
 });
 ACT.kidno = () => { toast('No worries! Come back with a grown-up and we’ll start.'); setTimeout(() => go('who'), 900); };

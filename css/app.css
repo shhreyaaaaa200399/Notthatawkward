@@ -766,3 +766,17 @@ img{-webkit-user-drag:none;user-drag:none}
 .hi-row{gap:6px}.hi-row button{padding:8px 10px;font-size:15px}
 .ama-cta{bottom:8px}
 .splash .lb.o9 .tx{left:18%;right:18%;top:62%}
+
+/* intro: illustration, then a clear gap, then the copy */
+.intro .art{top:50px;height:176px;align-items:flex-end}
+.intro .copy{top:262px}
+
+/* spacing fixes */
+.agree{top:292px}
+.tone-copy{top:200px}
+.cstack{top:40px}.cstack img{height:100px!important}
+.mh{top:120px}
+.sess{padding-top:8px;padding-bottom:8px}
+.ama{top:98px}
+.agree{top:274px}
+.cstack{top:26px}.cstack img{height:92px!important}.cstack h2{margin:2px 0 6px}.cstack p{margin-bottom:16px;max-width:460px}
