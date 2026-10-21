@@ -567,10 +567,12 @@ const BGC = { peach: 'bg-peach', cream: 'bg-cream', olive: 'bg-olive', yellow: '
 function slideHTML(s, st, idx, mini) {
   let h = `<div class="sl ${s.scene || s.w === 'facts' ? 'bg-scene' : (BGC[s.bg] || 'bg-peach')}" data-i="${idx}" style="${mini ? 'transform:none;opacity:1' : ''}">`;
   if (s.scene && window.SCN && SCN[s.scene]) {
-    h += `<div class="scn"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${SCN[s.scene](s.ctx || { tier: 'y', tone: 1 })}</svg></div>`;
+    // the picture sits below the caption, never behind it, so nothing in the art is ever covered
+    const svg = SCN[s.scene](s.ctx || { tier: 'y', tone: 1 }), bg = PR.bg || {};
+    h += `<div class="scn" style="background:linear-gradient(${bg.sky} 0 90%, ${bg.ground} 90% 100%)"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${svg}</svg></div>`;
     if (s.tone) h += `<div class="tonechip">${['Diagram view', 'Simple view', 'Gentle view'][(s.ctx && s.ctx.tone) || 0]}</div>`;
-    const len = (s.t || '').length, w = Math.max(280, Math.min(470, 120 + len * 3.1)), fs = len > 130 ? 14 : len > 90 ? 15 : 16.5, lines = Math.ceil(len * (fs * .52) / (w - 60)), hh = Math.max(56, 36 + lines * (fs * 1.38));
-    h += `<div class="banner b1 cap" style="left:84px;top:16px;width:${w}px;height:${hh}px;font-size:${fs}px">${esc(s.t || '')}</div>`;
+    const len = (s.t || '').length, fs = len > 150 ? 14.5 : len > 100 ? 15.5 : 16.5, w = Math.max(300, Math.min(720, 140 + len * 5.4)), lines = Math.ceil(len * (fs * .54) / (w - 60)), hh = Math.max(54, 30 + lines * (fs * 1.38));
+    h += `<div class="banner b1 cap" style="left:84px;top:14px;width:${w}px;height:${hh}px;font-size:${fs}px">${esc(s.t || '')}</div>`;
     return h + '</div>';
   }
   if (s.w === 'facts') {

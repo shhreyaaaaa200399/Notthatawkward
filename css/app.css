@@ -829,3 +829,8 @@ img{-webkit-user-drag:none;user-drag:none}
 .splash .sf .sg{display:block;width:100%;height:auto;transform-origin:50% 100%}
 .splash .sf .sg.talk{animation:talkB .55s ease-in-out infinite}
 .splash.done .sf .sg:not(.talk){animation:sway 4.5s ease-in-out infinite}
+
+/* the drawn scene is framed below the caption so text in the art is never covered */
+.scn svg{position:absolute;left:0;bottom:0;width:100%;height:80%}
+.lc .th svg,.tc .wmsvg svg{height:100%}
+.sl .banner.cap{padding:10px 46px}

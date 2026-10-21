@@ -1,6 +1,7 @@
 /* Not That Awk — scene backdrops and props (flat, angular, hand-cut look). Everything returns SVG strings in a 932 x 430 world. */
 window.PR = (() => {
   'use strict';
+  const PR_BG = { sky: '#fff', ground: '#999' };
   const A = window.ART, C = A.C, { poly, line, shade, f } = A;
   const W = 932, H = 430, GY = 396;           // GY = ground line where feet stand
 
@@ -30,6 +31,7 @@ window.PR = (() => {
   function base(ctx, o = {}) {
     const p = pal(ctx), t = (ctx && ctx.tier) || 'y', kind = o.kind || 'outdoor', gy = o.gy || GY - 14;
     let s = '';
+    PR_BG.sky = kind === 'indoor' ? (o.wall || p.sky) : kind === 'night' ? '#2b2740' : p.sky; PR_BG.ground = kind === 'indoor' ? (o.floor || p.ground2) : (o.ground || p.ground);
     if (kind === 'indoor') {
       s += `<rect width="${W}" height="${H}" fill="${o.wall || p.sky}"/>` + poly([[0, gy - 6], [W, gy - 14], [W, H], [0, H]], o.floor || p.ground2);
       if (t === 'y') s += [60, 200, 360, 560, 760, 880].map((x, i) => `<circle cx="${x}" cy="${60 + (i % 2) * 40}" r="${24 + (i % 3) * 8}" fill="${shade(o.wall || p.sky, -.05)}"/>`).join('');
@@ -83,5 +85,5 @@ window.PR = (() => {
   const microscope = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})">${poly([[-40, 0], [40, 0], [40, -8], [-40, -8]], '#2f3846')}${poly([[-8, -8], [8, -8], [10, -88], [-6, -88]], '#434f64')}${poly([[-6, -88], [16, -104], [30, -86], [8, -70]], '#647c8d', '')}${poly([[8, -70], [22, -78], [32, -52], [18, -46]], '#2f3846')}${poly([[-36, -4], [-8, -4], [-8, -30], [-36, -34]], '#434f64')}</g>`;
   const flask = (x, y, s = 1, c = C.olive, glow = false) => `<g transform="translate(${x} ${y}) scale(${s})">${glow ? `<circle cx="0" cy="-20" r="34" fill="${c}" opacity=".25"/>` : ''}${poly([[-8, -60], [8, -60], [8, -34], [26, 0], [-26, 0], [-8, -34]], '#e8f3f5', 'stroke="#0b0b0b" stroke-width="2.4" stroke-linejoin="round"')}${poly([[-18, -10], [18, -10], [26, 0], [-26, 0]], c)}</g>`;
 
-  return { W, H, GY, PAL, pal, txt, bubble, base, cloud, sun, spikes, flag, medal, trophy, ball, cricketBall, bat, stumps, gloves, mic, heart, star, sparkle, tear, sign, archWin, hawaMahal, house, court, stand, floodlight, pitch, window_, table, book, phone, chat, cradle, baby, microscope, flask };
+  return { bg: PR_BG, W, H, GY, PAL, pal, txt, bubble, base, cloud, sun, spikes, flag, medal, trophy, ball, cricketBall, bat, stumps, gloves, mic, heart, star, sparkle, tear, sign, archWin, hawaMahal, house, court, stand, floodlight, pitch, window_, table, book, phone, chat, cradle, baby, microscope, flask };
 })();
