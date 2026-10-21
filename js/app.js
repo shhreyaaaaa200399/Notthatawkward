@@ -288,7 +288,8 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     lg.style.cssText = `left:${LX}px;top:${LY}px;width:${LOGO.W * K}px;height:${LOGO.H * K}px`;
     const fl = $('#gL', el), fr = $('#gR', el);
     const st = { c: 'happy', m: 'happy', p: 'happy', a: 'happy' }, tk = { c: 0, m: 0, p: 0, a: 0 };
-    const draw = () => { fl.innerHTML = splGroup('m', 'c', st.m, st.c, tk.m, tk.c); fr.innerHTML = splGroup('p', 'a', st.p, st.a, tk.p, tk.a); };
+    // the original illustrations, untouched; they come alive through movement
+    const draw = () => { fl.innerHTML = `<img class="sg ${tk.c ? 'talk' : ''}" src="assets/faces_left.png" alt="">`; fr.innerHTML = `<img class="sg ${tk.p ? 'talk' : ''}" src="assets/faces_right.png" alt="">`; };
     draw();
     // blink every few seconds: lids fade in/out through CSS, no redraw needed
     const start = { o10: { cx: 330, cy: 150, sc: 1.7, flip: 1, rot: -6 }, o9: { cx: 600, cy: 262, sc: 1.7, flip: -1, rot: 5 } };
@@ -297,17 +298,16 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     const timers = []; let done = false, ready = false, idle = null, talkT = null;
     const at = (ms, fn) => timers.push(setTimeout(fn, ms));
     const place = f => { const s = start[f], e = fin(f); return { dx: s.cx - e.cx, dy: s.cy - e.cy }; };
-    const talk = (who, ms) => { clearInterval(talkT); let on = 0; talkT = setInterval(() => { on ^= 1; tk[who] = on; draw(); }, 150); setTimeout(() => { clearInterval(talkT); tk[who] = 0; draw(); }, ms); };
+    const talk = (who, ms) => { tk[who] = 1; draw(); setTimeout(() => { tk[who] = 0; draw(); }, ms); };
     const pop = (f, line) => {
       const b = bubs[f], s = start[f], { dx, dy } = place(f), tx = $('.tx', b);
       tx.innerHTML = line.tx; tx.style.opacity = 1; tx.style.transform = s.flip < 0 ? 'translateY(-50%) scaleX(-1)' : 'translateY(-50%)';
       b.style.opacity = 1; b.style.zIndex = 5;
       b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s.flip * .2},.2) rotate(${s.rot}deg)`, opacity: 0 }, { transform: `translate(${dx}px,${dy}px) scale(${s.flip * s.sc},${s.sc}) rotate(${s.rot}deg)`, opacity: 1 }], { duration: 420, easing: 'cubic-bezier(.2,1.7,.4,1)', fill: 'forwards' });
-      Object.assign(st, line.ex); draw(); talk(f === 'o10' ? 'c' : 'p', 1100); beep('pop');
+      talk(f === 'o10' ? 'c' : 'p', 1400); beep('pop');
     };
     const finale = () => {
-      Object.assign(st, { c: 'laugh', m: 'laugh', p: 'laugh', a: 'happy' }); draw();
-      [[fl, 46, 188], [fr, 676, 174]].forEach(([f, l1, t1], i) => { f.style.animation = 'none'; f.style.opacity = 1; const L0 = i ? 600 : 110, T0 = i ? 70 : 170; f.animate([{ left: L0 + 'px', top: T0 + 'px', width: '260px' }, { left: l1 + 'px', top: t1 + 'px', width: '200px' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'forwards' }); });
+      [[fl, 46, 188], [fr, 672, 174]].forEach(([f, l1, t1], i) => { f.style.animation = 'none'; f.style.opacity = 1; const L0 = i ? 600 : 110, T0 = i ? 70 : 170; f.animate([{ left: L0 + 'px', top: T0 + 'px', width: (i ? 287 : 215) + 'px' }, { left: l1 + 'px', top: t1 + 'px', width: (i ? 250 : 190) + 'px' }], { duration: 900, delay: 200, easing: 'cubic-bezier(.3,1.4,.5,1)', fill: 'forwards' }); });
       Object.keys(bubs).forEach((f, i) => {
         const b = bubs[f], s = start[f], { dx, dy } = place(f); $('.tx', b).style.opacity = 0;
         b.animate([{ transform: `translate(${dx}px,${dy}px) scale(${s.flip * s.sc},${s.sc}) rotate(${s.rot}deg)` }, { transform: 'translate(0,0) scale(1,1) rotate(0)' }], { duration: 900, delay: i * 120, easing: 'cubic-bezier(.3,1.5,.5,1)', fill: 'forwards' });
@@ -317,10 +317,10 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
       at(2100, () => { ready = true; el.classList.add('done'); lifeLoop(); });
     };
     // idle life: expressions drift, like they're still chatting
-    const lifeLoop = () => { const pool = ['happy', 'laugh', 'curious', 'shy', 'proud']; idle = setInterval(() => { const k = ['c', 'm', 'p', 'a'][Math.floor(Math.random() * 4)]; st[k] = pool[Math.floor(Math.random() * pool.length)]; draw(); }, 1800); };
+    const lifeLoop = () => { idle = setInterval(() => { const k = Math.random() < .5 ? 'c' : 'p'; tk[k] = 1; draw(); setTimeout(() => { tk[k] = 0; draw(); }, 900); }, 2600); };
     const finish = () => {
       timers.forEach(clearTimeout); clearInterval(talkT); done = true; ready = true;
-      $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); Object.assign(st, { c: 'laugh', m: 'laugh', p: 'laugh', a: 'happy' }); draw(); el.classList.add('done', 'skip'); if (!idle) lifeLoop();
+      $$('*', el).forEach(n => n.getAnimations && n.getAnimations().forEach(a => a.cancel())); draw(); el.classList.add('done', 'skip'); if (!idle) lifeLoop();
     };
     let t = 900; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1900; });
     at(t + 300, finale);

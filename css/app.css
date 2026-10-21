@@ -822,3 +822,10 @@ img{-webkit-user-drag:none;user-drag:none}
 .pills button.on{background:var(--agec,var(--purple));box-shadow:0 3px 0 rgba(0,0,0,.35)}
 .sl .banner{background:var(--cap,var(--orange))}.sl .banner.alt{background:var(--logo)}
 .sl .art.chart{position:absolute;z-index:2}
+
+/* splash: original illustrations, alive through motion only */
+.splash .sf{width:215px}.splash .sfr{width:287px}
+.splash.skip .sfl{width:190px}.splash.skip .sfr{width:250px;left:672px}
+.splash .sf .sg{display:block;width:100%;height:auto;transform-origin:50% 100%}
+.splash .sf .sg.talk{animation:talkB .55s ease-in-out infinite}
+.splash.done .sf .sg:not(.talk){animation:sway 4.5s ease-in-out infinite}
