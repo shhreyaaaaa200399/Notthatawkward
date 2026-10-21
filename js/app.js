@@ -269,7 +269,7 @@ window.NTA_FLOWER = flowerSVG;
 const LOGO = { W: 994, H: 820, parts: [['p1', 165, 27, 312], ['p2', 479, 45, 174], ['p3', 460, 266, 206], ['p6', 61, 420, 144], ['p5', 197, 405, 157], ['p4', 276, 391, 253], ['p7', 500, 472, 226], ['p8', 721, 493, 199]], bub: { o9: [668, 230, 203], o10: [52, 592, 237] } };
 const SPLASH_SCRIPT = [
   { who: 'o10', tx: 'Where do babies<br>come from?', ex: { c: 'curious', m: 'surprised', p: 'happy', a: 'happy' } },
-  { who: 'o9', tx: 'Look,<br>a bird!', ex: { c: 'thinking', m: 'worried', p: 'awkward', a: 'embarrassed' } },
+  { who: 'o9', tx: 'Once upon<br>a time…', ex: { c: 'thinking', m: 'worried', p: 'awkward', a: 'embarrassed' } },
 ];
 /* the two families are vector heads: expressions change, they blink, and they talk */
 const SPL = { c: { skin: 'c', hair: 'braid', top: 1 }, m: { skin: 'a', hair: 'long', acc: ['bindi', 'earring'] }, p: { skin: 'b', hair: 'short', acc: ['moustache'] }, a: { skin: 'a', hair: 'dupatta', acc: ['bindi'] } };
