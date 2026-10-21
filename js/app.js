@@ -286,7 +286,7 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     <div class="lg" id="lg">${LOGO.parts.map(([f, x, y, w]) => `<img class="lp" src="assets/logo/${f}.png" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%" alt="">`).join('')}
       ${Object.entries(LOGO.bub).map(([f, [x, y, w]]) => `<div class="lb ${f}" style="left:${x / LOGO.W * 100}%;top:${y / LOGO.H * 100}%;width:${w / LOGO.W * 100}%"><img src="assets/logo/${f}.png" alt=""><span class="tx"></span></div>`).join('')}</div>
     <div class="abs hint">TAP TO START</div>
-    <svg class="abs go" viewBox="0 0 56 24"><path d="M2 12h44M36 3l14 9-14 9" stroke="#000" stroke-width="5" fill="none"/></svg>`,
+    <img class="abs go" src="assets/arrow.png" alt="">`,
   mount: el => {
     const lg = $('#lg', el), K = 0.37, LX = (932 - LOGO.W * K) / 2, LY = 30;
     lg.style.cssText = `left:${LX}px;top:${LY}px;width:${LOGO.W * K}px;height:${LOGO.H * K}px`;
