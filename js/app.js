@@ -199,7 +199,7 @@ function render(id, opts) {
   try { $('#stage').dataset.age = SC[id].group === 'Onboarding' ? 'y' : tierOf(); } catch (e) {}
   if (def.mount) def.mount(el, opts || {});
   if (!NO_CENTER.has(id)) { requestAnimationFrame(() => centerContent(el)); setTimeout(() => centerContent(el), 250); }
-  $$('#side nav button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  $$('#side nav button[data-id]').forEach(b => b.classList.toggle('on', b.dataset.id === id));
   const lab = $('#curName'); if (lab) lab.textContent = def.name;
   try { speechSynthesis.cancel(); } catch (e) {}
 }
@@ -807,7 +807,16 @@ window.NTA = { S, D, go, back, ACT, reg, SC, ORDER, t, ICON, toast, modal, close
 function buildSide() {
   const groups = {}; ORDER.forEach(id => { const g = SC[id].group; (groups[g] = groups[g] || []).push(id); });
   $('#side nav').innerHTML = Object.entries(groups).map(([g, ids]) => `<h6>${g}</h6>${ids.map(id => `<button data-id="${id}"><span>${SC[id].name}</span>${/new/.test(SC[id].name) ? '<em>NEW</em>' : ''}</button>`).join('')}`).join('');
-  $$('#side nav button').forEach(b => b.onclick = () => { go(b.dataset.id, b.dataset.id === 'story' || b.dataset.id === 'done' ? { id: 'colours' } : {}); });
+  const mode = () => S.profiles.length ? 'regular' : 'first';
+  $('#side nav').insertAdjacentHTML('afterbegin', `<h6>User journey</h6><div class="flowsw"><button data-flow="first">First-time user</button><button data-flow="regular">Regular user</button></div><p class="flownote" id="flownote"></p>`);
+  const paintFlow = () => { $$('.flowsw button').forEach(b => b.classList.toggle('on', b.dataset.flow === mode())); $('#flownote').textContent = mode() === 'first' ? 'No profiles yet: splash → intro → language → who → … → avatar → name.' : 'Profiles exist: splash → who’s using the app → home. Tap + to add a child.'; };
+  $$('.flowsw button').forEach(b => b.onclick = () => {
+    if (b.dataset.flow === 'first') { S.profiles = []; S.cur = null; S.consent = false; S.onboarded = false; S.roleChosen = null; }
+    else { S.profiles = [{ id: 'p1', name: 'Aarav', av: 'deer', age: '4-6' }, { id: 'p2', name: 'Shreya', av: 'goat', age: '7-9' }, { id: 'p3', name: 'Midha', av: 'hero:lightning', age: '10-12' }]; S.cur = 'p1'; S.onboarded = true; }
+    save(); paintFlow(); go('splash');
+  });
+  paintFlow(); window.NTA_paintFlow = paintFlow;
+  $$('#side nav button[data-id]').forEach(b => b.onclick = () => { go(b.dataset.id, b.dataset.id === 'story' || b.dataset.id === 'done' ? { id: 'pink' } : {}); });
 }
 function fit() {
   const vp = $('#viewport'), dev = $('#device'); const w = vp.clientWidth, h = vp.clientHeight;
