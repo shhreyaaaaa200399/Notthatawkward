@@ -911,3 +911,7 @@ img{-webkit-user-drag:none;user-drag:none}
 .splash .hint{bottom:74px}
 .splash .go{width:58px;height:auto;margin-left:-29px;bottom:20px}
 .splash .hint{bottom:62px}.splash .go{bottom:26px}
+.ib.snd{transition:opacity .2s}
+.ib.snd.off{opacity:.5}
+.ib.snd.off::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:5px;background:var(--ink);transform:rotate(-40deg);box-shadow:0 0 0 2px var(--paper)}
+.approved{position:absolute;left:0;right:0;bottom:62px;text-align:center;font:700 11px var(--body);color:#8a8497;letter-spacing:.3px}

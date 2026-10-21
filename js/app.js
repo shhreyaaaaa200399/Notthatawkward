@@ -11,12 +11,8 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 const KEY = 'nta-proto-v2';
 const defaults = () => ({
   lang: 'en', tone: 1, role: 'parent', arch: null, sound: true, read: true, consent: false,
-  profiles: [
-    { id: 'p1', name: 'Aarav', av: 'deer', age: '4-6' },
-    { id: 'p2', name: 'Shreya', av: 'goat', age: '7-9' },
-    { id: 'p3', name: 'Midha', av: 'cat', age: '10-12' },
-  ],
-  cur: 'p1', stars: 3, stk: ['deer', 'goat', 'cat'], en: {}, seen: [], talks: 2, games: 1,
+  profiles: [],
+  cur: null, stars: 3, stk: ['deer', 'goat', 'cat'], en: {}, seen: [], talks: 2, games: 1,
   awk: [2, 3, 3, 4], week: [2, 4, 3, 5, 2, 6, 4], chal: [true, false, false], trusted: [], limit: 30, custom: {}, onboarded: false,
 });
 let S;
@@ -24,7 +20,8 @@ try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}'
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 const draft = { age: '4-6', av: null, name: '' };
 const ageMin = p => ({ '4-6': 4, '7-9': 7, '10-12': 10 }[p.age] || 4);
-const prof = () => S.profiles.find(p => p.id === S.cur) || S.profiles[0];
+const DEMO_PROFILE = { id: 'demo', name: 'Friend', av: 'deer', age: '7-9' };
+const prof = () => S.profiles.find(p => p.id === S.cur) || S.profiles[0] || DEMO_PROFILE;
 /* reading levels: y = 4-6, m = 7-9, o = 10-12. Each age group gets its own colour world, copy and illustrations. */
 const TIER = { '4-6': 'y', '7-9': 'm', '10-12': 'o' };
 const tierOf = p => TIER[(p || prof()).age] || 'y';
@@ -38,7 +35,7 @@ function effStory(s) {
   return { ...s, slides, tier, ctx };
 }
 const storyOn = (pid, s) => {
-  const p = S.profiles.find(x => x.id === pid); const o = S.en[pid] && S.en[pid][s.id];
+  const p = S.profiles.find(x => x.id === pid) || DEMO_PROFILE; const o = S.en[pid] && S.en[pid][s.id];
   return o !== undefined ? o : s.minAge <= ageMin(p);
 };
 const t = k => (D.T[S.lang] && D.T[S.lang][k]) || D.T.en[k] || k;
@@ -101,12 +98,26 @@ function beep(kind = 'tap') {
     });
   } catch (e) {}
 }
+let VOICE = null;
+function pickVoice() {
+  try {
+    const vs = speechSynthesis.getVoices(), want = S.lang === 'hi' ? 'hi' : 'en';
+    const score = v => { const n = v.name.toLowerCase(), l = v.lang.toLowerCase(); let k = 0;
+      if (/natural|neural|online/.test(n)) k += 6; if (/google/.test(n)) k += 3;
+      if (/samantha|karen|moira|tessa|veena|aria|jenny|sonia|libby|zira|heera|swara|female|kalpana/.test(n)) k += 4;
+      if (/male|david|mark|daniel|alex|fred|ravi|hemant/.test(n) && !/female/.test(n)) k -= 5;
+      if (/en-in|en-gb|en-au/.test(l)) k += 1; if (v.localService === false) k += 1; return k; };
+    VOICE = vs.filter(v => v.lang.toLowerCase().startsWith(want)).sort((x, y) => score(y) - score(x))[0] || null;
+  } catch (e) {}
+}
+try { if (window.speechSynthesis) { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } } catch (e) {}
 function speak(text) {
   try {
-    if (!window.speechSynthesis) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/\n/g, ' '));
-    u.lang = S.lang === 'hi' ? 'hi-IN' : 'en-IN'; u.rate = .92; u.pitch = 1.1;
+    if (!window.speechSynthesis || !S.read) return;
+    speechSynthesis.cancel(); pickVoice();
+    const u = new SpeechSynthesisUtterance(text.replace(/\n/g, ' ').replace(/[“”"]/g, ''));
+    if (VOICE) u.voice = VOICE; u.lang = VOICE ? VOICE.lang : (S.lang === 'hi' ? 'hi-IN' : 'en-IN');
+    u.rate = .86; u.pitch = 1.28; u.volume = 1;   // slower and a little higher: warm, gentle storyteller
     speechSynthesis.speak(u);
   } catch (e) {}
 }
@@ -224,8 +235,8 @@ document.addEventListener('click', e => {
 });
 Object.assign(ACT, {
   go: a => go(a), back: () => back(),
-  gated: a => gate(() => go(a)),
-  settings: () => gate(() => go('settings'), 'Settings and profiles are for grown-ups.'),
+  gated: a => gate(() => { S._unlock = Date.now(); go(a); }),
+  settings: () => go('settings'),
   trans: () => { langReturn = cur.id; go('language'); },
   exit: () => {
     modal(`<div class="gate" style="margin-top:-130px"><h4>Taking a break?</h4><p>Your stars and stickers are safe. See you soon!</p>
@@ -328,7 +339,7 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     };
     let t = 900; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1900; });
     at(t + 300, finale);
-    const next = () => { clearInterval(idle); beep('pop'); go(S.onboarded ? 'users' : 'intro'); };
+    const next = () => { clearInterval(idle); beep('pop'); go(S.profiles.length ? 'users' : 'intro'); };
     el.onclick = () => { if (ready) next(); else if (!done) finish(); else next(); };
     el._cleanup = () => { clearInterval(idle); clearInterval(talkT); timers.forEach(clearTimeout); };
   } });
@@ -485,8 +496,8 @@ const MOODS = [['happy', 'Happy'], ['laugh', 'Giggly'], ['proud', 'Proud'], ['de
 const mk0 = () => ({ skin: SKINS[2], hair: 'short', hc: '#0b0b0b', top: '#e35e26', ts: 'tee', bot: '#434f64', bs: 'pants', ex: 'happy', acc: [], name: 'Me' });
 let mk = mk0(), mkPhoto = null;
 const mkSpec = () => ({ ...mk, cape: mk.acc.includes('cape') ? '#ac2929' : null, acc: mk.acc.filter(a => a !== 'cape') });
-const sw = (key, c) => `<button class="sw2" data-mk="${key}:${c}" style="background:${c}" aria-label="${c}"></button>`;
-const chp = (key, v, l) => `<button class="ch2" data-mk="${key}:${v}">${l}</button>`;
+const sw = (key, c) => `<button class="sw2" data-act="mk:${key}:${c}" data-mk="${key}:${c}" style="background:${c}" aria-label="${c}"></button>`;
+const chp = (key, v, l) => `<button class="ch2" data-act="mk:${key}:${v}" data-mk="${key}:${v}">${l}</button>`;
 let mkStep = 0;
 const MK_STEPS = ['Face', 'Hair', 'Colours', 'Extras', 'Mood'];
 const mkPanel = () => [
@@ -602,6 +613,7 @@ reg('learn', { name: 'Learn · story library', group: 'Learn', cls: '',
     ${list.length ? `<div class="lcar">${list.map(s => `<div class="lc" data-open="openstory" data-id="${s.id}"><div class="lc-cap">${esc(s.title)}</div><div class="thw">${thumbHTML(s)}${s.minAge > ageMin(p) ? `<div class="lk2">${s.minAge}+ · unlocked by a grown-up</div>` : ''}</div></div>`).join('')}
       <button class="nv l" aria-label="Previous">${ICON.chevL}</button><button class="nv r" aria-label="Next">${ICON.chevR}</button></div>`
       : `<div class="abs" style="left:0;right:0;top:170px;text-align:center"><h3 class="disp" style="font-size:26px;margin:0 0 8px">No stories here yet</h3><p style="font:600 14px var(--body);color:#777;margin:0">A grown-up can switch more stories on.</p></div>`}
+    <div class="approved">Stories your grown-ups approved for ${esc(p.name)}</div>
     <div class="learn-actions"><button class="btn ghost sm" data-act="back">${t('back')}</button><button class="btn sm" style="white-space:nowrap" data-act="gated:topics">${ICON.lock.replace('currentColor', '#fff').replace('<svg','<svg width="16" height="16"')} ${t('grownups')}</button></div>`;
   },
   mount: el => {
@@ -720,7 +732,9 @@ reg('story', { name: 'Story reader', group: 'Learn', cls: 'story',
     };
     ACT.snext = () => { if (i >= s.slides.length - 1) { go('done', { id: s.id }); } else show(i + 1); };
     ACT.sprev = () => show(i - 1);
-    ACT.speakit = () => { const t0 = s.slides[i].t || s.slides[i].q || ''; speak(t0); $('.snd', el).classList.add('on'); setTimeout(() => $('.snd', el).classList.remove('on'), 2500); };
+    const paintSnd = () => $('.snd', el).classList.toggle('off', !S.read);
+    ACT.speakit = () => { S.read = !S.read; save(); paintSnd(); if (S.read) { speak(s.slides[i].t || s.slides[i].q || ''); toast('Voice on'); } else { try { speechSynthesis.cancel(); } catch (e) {} toast('Voice off'); } };
+    paintSnd();
     sl.forEach((e, k) => { e.style.transition = 'none'; }); show(+o.slide || 0); requestAnimationFrame(() => sl.forEach(e => e.style.transition = ''));
     let x0 = null; el.onpointerdown = e => { x0 = window.NTA_ROT ? e.clientY : e.clientX; }; el.onpointerup = e => { if (x0 == null) return; const d = (window.NTA_ROT ? e.clientY : e.clientX) - x0; x0 = null; if (Math.abs(d) > 50 * (window.NTA_SCALE || 1)) { d < 0 ? (lockNext(), $('.s-next', el).style.pointerEvents !== 'none' && ACT.snext()) : ACT.sprev(); } };
     const keyh = e => { if (cur.id !== 'story') return document.removeEventListener('keydown', keyh); if (e.key === 'ArrowRight') $('.s-next', el).style.pointerEvents !== 'none' && ACT.snext(); if (e.key === 'ArrowLeft') ACT.sprev(); }; document.addEventListener('keydown', keyh);

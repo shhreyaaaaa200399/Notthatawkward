@@ -289,11 +289,11 @@ reg('world', { name: 'Hi, World! (new)', group: 'Meet',
   } });
 
 /* ------------------------------------------------------------------ Settings + dashboard + goodbye */
-const setUI = { pane: 'tone' };
+const setUI = { pane: 'sound' };
 reg('settings', { name: 'Settings (grown-ups, new)', group: 'Grown-ups',
   render: () => { const P = [['tone', 'Tone', 'heart'], ['lang', 'Language', 'book'], ['sound', 'Sound & reading', 'play'], ['time', 'Screen time', 'clock'], ['prof', 'Profiles', 'people'], ['priv', 'Privacy', 'lock']];
     return `${backB}${closeB('go:hub')}${hd('Grown-ups corner', 'SETTINGS', 'sm')}
-    <div class="set"><nav>${P.map(([id, n, ic]) => `<button class="${setUI.pane === id ? 'on' : ''}" data-act="pane:${id}">${ICON[ic]}<span style="width:18px;display:inline-block"></span>${n}</button>`).join('')}<button data-act="go:dashboard">${ICON.star.replace('#ffcb05', 'currentColor')}<span style="width:18px;display:inline-block"></span>Weekly report</button></nav><div class="pane" id="pane"></div></div>`; },
+    <div class="set"><nav>${P.map(([id, n, ic]) => `<button class="${setUI.pane === id ? 'on' : ''}" data-act="pane:${id}">${ICON[ic]}<span style="width:18px;display:inline-block"></span>${n}</button>`).join('')}<button data-act="gated:dashboard">${ICON.star.replace('#ffcb05', 'currentColor')}<span style="width:18px;display:inline-block"></span>Weekly report</button></nav><div class="pane" id="pane"></div></div>`; },
   mount: el => paneDraw(el) });
 const seg = (id, items, val) => `<div class="seg">${items.map(([v, l]) => `<button class="${String(v) === String(val) ? 'on' : ''}" data-act="set:${id}:${v}">${l}</button>`).join('')}</div>`;
 const tog = (id, on) => `<button class="sw-t ${on ? 'on' : ''}" data-act="stog:${id}" aria-label="Toggle"></button>`;
@@ -307,7 +307,8 @@ function paneDraw(el) {
     priv: `<div class="row2"><div>Your data<small>This prototype keeps everything on this device. A real launch would follow India’s DPDP Act with verified parental consent.</small></div></div><div class="row2"><div>Reset demo<small>Clears profiles, stars and stickers.</small></div><button class="btn sm or" data-act="resetdemo">Reset</button></div>`,
   }; p.innerHTML = P[setUI.pane];
 }
-ACT.pane = id => { setUI.pane = id; $$('.set nav button').forEach(b => b.classList.toggle('on', b.dataset.act === 'pane:' + id)); paneDraw(); };
+const PARENT_PANES = ['tone', 'time', 'prof', 'priv'];
+ACT.pane = id => { if (PARENT_PANES.includes(id) && !(S._unlock && Date.now() - S._unlock < 600000)) return N.gate(() => { S._unlock = Date.now(); ACT.pane(id); }, 'These settings are for grown-ups.'); setUI.pane = id; $$('.set nav button').forEach(b => b.classList.toggle('on', b.dataset.act === 'pane:' + id)); paneDraw(); };
 ACT.set = (a) => { const [k, v] = a.split(':'); if (k === 'tone') S.tone = +v; else if (k === 'lang') { S.lang = v; } else if (k === 'limit') S.limit = +v; save(); if (k === 'lang') N.rerender(); else paneDraw(); };
 ACT.stog = k => { S[k] = !S[k]; save(); paneDraw(); };
 ACT.mng = id => { S.cur = id; save(); go('topics'); };

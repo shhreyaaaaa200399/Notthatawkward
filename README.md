@@ -16,7 +16,8 @@ Press `P` to toggle the presenter sidebar. `?s=<screen>&id=<story>&slide=<n>` de
 - **"Awk level" changes the pictures**: slides marked `tone:true` show a labelled diagram at *Not That Awk*, a simpler view at *A Little Awk*, and a gentle metaphor at *Very Awk*.
 
 - **Avatars**: animals for everyone, hero avatars for 10-12 (original characters, not brand copies), and a **make-your-own** lab (`js/avatars.js`): optionally take or upload a photo, which is used only on the device to suggest skin and hair colours, then tune hair, accessories, cape, mask and mood. Hero and custom avatars also star in the stories.
-- **First visit vs. returning**: first-time families go through onboarding (including the avatar pick); returning families land on the profile screen, and adding a profile is what leads to the avatar pick.
+- **First visit vs. returning**: first-time families go through onboarding (including the avatar pick); returning families (any saved profile) land straight on the profile screen, and the plus button there is what leads to age, avatar and name. A fresh install has no profiles until the first child is added.
+- **Use without a parent**: kids can open the app, Play, Meet, the sound/voice and language settings, and the library of stories their grown-ups approved. Only grown-up controls (tone, screen time, profiles, privacy, topic approvals, weekly report) ask for a quick grown-up check.
 - **Anatomy**: the "Real names for body parts" story shows labelled reproductive-system diagrams only at the *Not That Awk* level (7+); lower levels show simple name cards or a gentle note.
 
 ## Content caveats
