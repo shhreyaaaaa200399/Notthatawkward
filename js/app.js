@@ -17,7 +17,7 @@ const defaults = () => ({
     { id: 'p3', name: 'Midha', av: 'cat', age: '10-12' },
   ],
   cur: 'p1', stars: 3, stk: ['deer', 'goat', 'cat'], en: {}, seen: [], talks: 2, games: 1,
-  awk: [2, 3, 3, 4], week: [2, 4, 3, 5, 2, 6, 4], chal: [true, false, false], trusted: [], limit: 30,
+  awk: [2, 3, 3, 4], week: [2, 4, 3, 5, 2, 6, 4], chal: [true, false, false], trusted: [], limit: 30, custom: {}, onboarded: false,
 });
 let S;
 try { S = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) { S = defaults(); }
@@ -75,7 +75,11 @@ const ICON = {
 };
 window.NTA_ICON = ICON;
 
-const avImg = (a, cls = '') => `<img class="${cls}" src="assets/av_${a}.png" alt="${D.AV_NAME[a] || ''} avatar">`;
+/* avatars: animals are pictures, heroes and "made by me" avatars are drawn on the fly in the same language */
+const avData = a => typeof a === 'string' && a.startsWith('hero:') ? ART.HEROES[a.slice(5)] : typeof a === 'string' && a.startsWith('me:') ? (S.custom || {})[a.slice(3)] : null;
+const avName = a => { const d = avData(a); return d ? (d.name || 'My avatar') : (D.AV_NAME[a] || ''); };
+const avImg = (a, cls = '') => { const d = avData(a); return d ? `<img class="${cls}" src="${ART.avatarURL(d)}" alt="${avName(a)} avatar">` : `<img class="${cls}" src="assets/av_${a}.png" alt="${D.AV_NAME[a] || ''} avatar">`; };
+const meSpec = () => { const d = avData(prof().av); return d ? { ...d, cape: d.cape || null } : null; };
 const artImg = (k, h, cls = '', st = '') => {
   const a = D.ART[k]; if (!a) return '';
   return `<img class="${cls}" src="${a.src}" alt="" style="height:${h || a.h}px;width:auto;${st}">`;
@@ -324,7 +328,8 @@ reg('splash', { name: 'Splash', group: 'Onboarding', cls: 'splash',
     };
     let t = 900; SPLASH_SCRIPT.forEach((line, i) => { at(t, () => pop(line.who, line)); t += 1900; });
     at(t + 300, finale);
-    el.onclick = () => { if (ready) { clearInterval(idle); beep('pop'); go('intro'); } else if (!done) finish(); else { clearInterval(idle); beep('pop'); go('intro'); } };
+    const next = () => { clearInterval(idle); beep('pop'); go(S.onboarded ? 'users' : 'intro'); };
+    el.onclick = () => { if (ready) next(); else if (!done) finish(); else next(); };
     el._cleanup = () => { clearInterval(idle); clearInterval(talkT); timers.forEach(clearTimeout); };
   } });
 
@@ -457,11 +462,82 @@ reg('age', { name: 'How old is the child?', group: 'Onboarding',
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:avatar', cls: 'pulse' }])}`,
   mount: el => { carousel(el, '.it', 3, () => AGES.indexOf(draft.age), i => { draft.age = AGES[i]; }, 394); } });
 
+let avTab = 'animals';
+const avTabs = () => ['animals', ...(draft.age === '10-12' ? ['heroes'] : []), 'mine'];
 reg('avatar', { name: 'Pick an avatar', group: 'Onboarding',
-  render: () => `${gearB}${closeB()}${hd(t('av_q'), t('profile'), '', `<div class="agetag">[ ${draft.age} YEARS OLD ]</div>`)}
-    <div class="avgrid">${D.AVATARS.map(a => `<button class="av ${draft.av === a ? 'on' : ''}" data-act="pickav:${a}" aria-label="${D.AV_NAME[a]}">${avImg(a)}</button>`).join('')}</div>
-    ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:name', id: 'nextB', cls: draft.av ? 'pulse' : 'dis' }])}` });
+  render: () => { if (!avTabs().includes(avTab)) avTab = 'animals'; S.custom = S.custom || {};
+    const items = avTab === 'animals' ? D.AVATARS : avTab === 'heroes' ? Object.keys(ART.HEROES).map(k => 'hero:' + k) : Object.keys(S.custom).map(k => 'me:' + k);
+    const label = { animals: 'Animals', heroes: 'Heroes', mine: 'My avatars' };
+    return `${gearB}${closeB()}${hd(t('av_q'), t('profile'), '', `<div class="agetag">[ ${draft.age} YEARS OLD ]</div>`)}
+    <div class="avtabs">${avTabs().map(k => `<button class="${avTab === k ? 'on' : ''}" data-act="avtab:${k}">${label[k]}</button>`).join('')}<button class="mkbtn" data-act="go:avmake">${ICON.plus || '+'} Make your own</button></div>
+    <div class="avgrid ${avTab}">${items.map(a => `<button class="av ${draft.av === a ? 'on' : ''}" data-act="pickav:${a}" aria-label="${esc(avName(a))}">${avImg(a)}${avTab !== 'animals' ? `<small>${esc(avName(a))}</small>` : ''}</button>`).join('') || '<div class="avempty">Nothing here yet.<br>Tap “Make your own” to create one!</div>'}</div>
+    ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:name', id: 'nextB', cls: draft.av ? 'pulse' : 'dis' }])}`; } });
+ACT.avtab = k => { avTab = k; rerender(); };
 ACT.pickav = a => { draft.av = a; $$('.av').forEach(b => b.classList.toggle('on', b.dataset.act === 'pickav:' + a)); const n = $('#nextB'); n.classList.remove('dis'); n.classList.add('pulse'); beep('pop'); };
+
+/* ---- make your own avatar: pick colours from a photo (kept on this device), then tune every detail ---- */
+const SKINS = ['#f4a66b', '#ef8a4e', '#e35e26', '#c9561f', '#93391a', '#7a2e10'];
+const HAIRS = [['short', 'Short'], ['long', 'Long'], ['braid', 'Braid'], ['bun', 'Bun'], ['curly', 'Curly'], ['spiky', 'Spiky'], ['dupatta', 'Dupatta'], ['hijab', 'Scarf'], ['turban', 'Turban'], ['cap', 'Cap'], ['beanie', 'Beanie'], ['headband', 'Band']];
+const HCOLS = ['#0b0b0b', '#6b4a2a', '#c4571a', '#d9b44a', '#bbbbbb', '#ff7664', '#653781', '#2d6ac7'];
+const TCOLS = ['#ffcb05', '#9ca32f', '#653781', '#e35e26', '#96c5d1', '#434f64', '#ff7664', '#ac2929'];
+const EXTRAS = [['glasses', 'Glasses'], ['bindi', 'Bindi'], ['moustache', 'Moustache'], ['beard', 'Beard'], ['headphones', 'Headphones'], ['earring', 'Earring'], ['mask', 'Mask'], ['tiara', 'Tiara'], ['crescent', 'Moon'], ['bolt', 'Bolt'], ['sunglasses', 'Shades'], ['cape', 'Cape']];
+const MOODS = [['happy', 'Happy'], ['laugh', 'Giggly'], ['proud', 'Proud'], ['determined', 'Brave'], ['curious', 'Curious'], ['shy', 'Shy']];
+const mk0 = () => ({ skin: SKINS[2], hair: 'short', hc: '#0b0b0b', top: '#e35e26', ts: 'tee', bot: '#434f64', bs: 'pants', ex: 'happy', acc: [], name: 'Me' });
+let mk = mk0(), mkPhoto = null;
+const mkSpec = () => ({ ...mk, cape: mk.acc.includes('cape') ? '#ac2929' : null, acc: mk.acc.filter(a => a !== 'cape') });
+const sw = (key, c) => `<button class="sw2" data-mk="${key}:${c}" style="background:${c}" aria-label="${c}"></button>`;
+const chp = (key, v, l) => `<button class="ch2" data-mk="${key}:${v}">${l}</button>`;
+reg('avmake', { name: 'Make your own avatar', group: 'Onboarding',
+  render: () => `${gearB}${closeB('back')}${hd('Make your own avatar', 'AVATAR LAB')}
+    <div class="mkl"><div class="mkp" id="mkp">${ART.avatarSVG(mkSpec(), 170)}</div>
+      <div class="mkphoto"><button class="btn sm ye" data-act="mkcam">Take a photo</button><button class="btn sm ghost" data-act="mkup">Upload</button><input type="file" id="mkf" accept="image/*" capture="user" hidden></div>
+      <div class="mknote" id="mknote">A photo is optional. It stays on this device. We only pick skin and hair colours, then you can change anything.</div></div>
+    <div class="mkr">
+      <div class="mkrow"><b>Skin</b><div>${SKINS.map(c => sw('skin', c)).join('')}</div></div>
+      <div class="mkrow"><b>Hair</b><div>${HAIRS.map(([v, l]) => chp('hair', v, l)).join('')}</div></div>
+      <div class="mkrow"><b>Hair colour</b><div>${HCOLS.map(c => sw('hc', c)).join('')}</div></div>
+      <div class="mkrow"><b>Top</b><div>${TCOLS.map(c => sw('top', c)).join('')}</div></div>
+      <div class="mkrow"><b>Extras</b><div>${EXTRAS.map(([v, l]) => chp('acc', v, l)).join('')}</div></div>
+      <div class="mkrow"><b>Mood</b><div>${MOODS.map(([v, l]) => chp('ex', v, l)).join('')}</div></div>
+    </div>
+    ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: 'Use this avatar', act: 'mksave', cls: 'pulse' }])}`,
+  mount: el => {
+    const f = $('#mkf', el); f.onchange = () => { const file = f.files && f.files[0]; if (!file) return; const im = new Image(); im.onload = () => { mkAnalyze(im); URL.revokeObjectURL(im.src); }; im.src = URL.createObjectURL(file); };
+    mkSync();
+  } });
+function mkSync() {
+  const pv = $('#mkp'); if (pv) pv.innerHTML = ART.avatarSVG(mkSpec(), 170);
+  $$('[data-mk]').forEach(b => { const [k, ...r] = b.dataset.mk.split(':'), v = r.join(':'); b.classList.toggle('on', k === 'acc' ? mk.acc.includes(v) : mk[k] === v); });
+  if (mkPhoto && $('#mknote') && !$('#mkph')) $('#mknote').insertAdjacentHTML('beforebegin', `<img id="mkph" class="mkph" src="${mkPhoto}" alt="Your photo">`);
+}
+ACT.mk = arg => { const i = arg.indexOf(':'), k = arg.slice(0, i), v = arg.slice(i + 1); if (k === 'acc') { const j = mk.acc.indexOf(v); j >= 0 ? mk.acc.splice(j, 1) : mk.acc.push(v); } else mk[k] = v; mkSync(); beep('tap'); };
+ACT.mkup = () => $('#mkf').click();
+ACT.mkcam = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+    const stop = () => stream.getTracks().forEach(t0 => t0.stop());
+    modal(`<div class="sheet camsheet"><video id="cam" autoplay playsinline muted></video><div class="camguide"></div><div class="camact"><button class="btn ol" data-snap>Snap</button><button class="btn ghost sm" data-cx>Cancel</button></div></div>`);
+    $('#cam').srcObject = stream;
+    $('#modal [data-snap]').onclick = () => { mkAnalyze($('#cam')); stop(); closeModal(); };
+    $('#modal [data-cx]').onclick = () => { stop(); closeModal(); };
+  } catch (e) { toast('Camera not available here. Try uploading a photo.'); $('#mkf').click(); }
+};
+/* colour picking only: not face recognition. The photo is never uploaded or stored. */
+function mkAnalyze(src) {
+  const c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d');
+  const w = src.videoWidth || src.naturalWidth || src.width, h = src.videoHeight || src.naturalHeight || src.height, m = Math.min(w, h);
+  g.drawImage(src, (w - m) / 2, (h - m) / 2, m, m, 0, 0, 96, 96);
+  const px = (x0, y0, x1, y1) => { const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data, a = []; for (let i = 0; i < d.length; i += 4) a.push([d[i], d[i + 1], d[i + 2]]); return a; };
+  const lum = ([r, gg, b]) => .299 * r + .587 * gg + .114 * b;
+  const face = px(34, 44, 62, 70).sort((p, q) => lum(p) - lum(q)), mid = face[Math.floor(face.length / 2)], L = lum(mid);
+  mk.skin = SKINS[L > 185 ? 0 : L > 160 ? 1 : L > 135 ? 2 : L > 105 ? 3 : L > 75 ? 4 : 5];
+  const hair = px(28, 2, 68, 20).sort((p, q) => lum(p) - lum(q)).slice(0, 120), n = hair.length || 1;
+  const [r, gg, b] = hair.reduce((a, p) => [a[0] + p[0] / n, a[1] + p[1] / n, a[2] + p[2] / n], [0, 0, 0]), hl = lum([r, gg, b]);
+  mk.hc = hl < 62 ? HCOLS[0] : (r > gg * 1.35 && r > 110) ? HCOLS[2] : hl > 170 ? ((Math.abs(r - gg) < 14 && Math.abs(gg - b) < 14) ? HCOLS[4] : HCOLS[3]) : HCOLS[1];
+  mkPhoto = c.toDataURL('image/jpeg', .6); const old = $('#mkph'); if (old) old.remove();
+  $('#mknote').textContent = 'Colours picked from your photo. Now make it yours!'; mkSync(); beep('win'); confetti(20);
+}
+ACT.mksave = () => { S.custom = S.custom || {}; const id = 'c' + Date.now().toString(36); S.custom[id] = mkSpec(); draft.av = 'me:' + id; avTab = 'mine'; save(); mk = mk0(); mkPhoto = null; toast('Your avatar is ready!'); go('avatar', {}, { noPush: true }); };
 
 reg('name', { name: 'What is the name?', group: 'Onboarding',
   render: () => `${gearB}${closeB()}${hd(t('name_q'))}
@@ -474,7 +550,7 @@ ACT.rollname = () => { const n = (pick(D.NAMES_A) + pick(D.NAMES_B)).slice(0, 10
 ACT.namego = () => {
   const nm = draft.name || 'Friend'; const ex = S.profiles.find(p => p.name.toLowerCase() === nm.toLowerCase());
   const p = ex || { id: 'p' + Date.now(), name: nm, av: 'deer', age: '4-6' }; p.av = draft.av || p.av; p.age = draft.age; p.name = nm;
-  if (!ex) { if (S.profiles.length >= 10) S.profiles.pop(); S.profiles.unshift(p); } S.cur = p.id; save(); draft.name = ''; draft.av = null; go('users');
+  if (!ex) { if (S.profiles.length >= 10) S.profiles.pop(); S.profiles.unshift(p); } S.cur = p.id; S.onboarded = true; save(); draft.name = ''; draft.av = null; go('users');
 };
 
 reg('users', { name: 'Who’s using the app?', group: 'Onboarding',
@@ -568,7 +644,8 @@ function slideHTML(s, st, idx, mini) {
   let h = `<div class="sl ${s.scene || s.w === 'facts' ? 'bg-scene' : (BGC[s.bg] || 'bg-peach')}" data-i="${idx}" style="${mini ? 'transform:none;opacity:1' : ''}">`;
   if (s.scene && window.SCN && SCN[s.scene]) {
     // the picture sits below the caption, never behind it, so nothing in the art is ever covered
-    const svg = SCN[s.scene](s.ctx || { tier: 'y', tone: 1 }), bg = PR.bg || {};
+    ART.ME = meSpec(); ART._meUsed = false;
+    const svg = SCN[s.scene](s.ctx || { tier: 'y', tone: 1 }), bg = PR.bg || {}; ART.ME = null;
     h += `<div class="scn" style="background:linear-gradient(${bg.sky} 0 90%, ${bg.ground} 90% 100%)"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMax meet" aria-hidden="true">${svg}</svg></div>`;
     if (s.tone) h += `<div class="tonechip">${['Diagram view', 'Simple view', 'Gentle view'][(s.ctx && s.ctx.tone) || 0]}</div>`;
     const len = (s.t || '').length, fs = len > 150 ? 14.5 : len > 100 ? 15.5 : 16.5, w = Math.max(300, Math.min(720, 140 + len * 5.4)), lines = Math.ceil(len * (fs * .54) / (w - 60)), hh = Math.max(54, 30 + lines * (fs * 1.38));

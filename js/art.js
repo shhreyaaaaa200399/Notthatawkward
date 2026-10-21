@@ -121,9 +121,15 @@ window.ART = (() => {
       headphones: `<path d="M12 56Q10 -2 58 -2T106 50" fill="none" stroke="#0b0b0b" stroke-width="7"/><rect x="2" y="50" width="16" height="30" rx="5" fill="#0b0b0b"/><rect x="98" y="44" width="16" height="30" rx="5" fill="#0b0b0b"/>`,
       beard: `<path d="M26 82Q30 124 62 126T100 82Q86 100 62 100T26 82z" fill="#0b0b0b"/>`,
       tilak: `<path d="M56 20v22" stroke="${C.maroon}" stroke-width="5"/>`,
-      stethoscope: '', cape: '',
+      sunglasses: poly([[10, 40], [56, 38], [58, 66], [14, 70]], '#0b0b0b') + poly([[62, 36], [104, 32], [102, 62], [64, 64]], '#0b0b0b') + `<path d="M56 46h8" stroke="#0b0b0b" stroke-width="4"/>`,
+      visor: poly([[8, 38], [110, 28], [112, 64], [10, 72]], '#4de0f0', 'opacity=".55"') + `<path d="M8 38L110 28" stroke="#0b0b0b" stroke-width="4"/>`,
+      tiara: poly([[22, 22], [30, 0], [42, 14], [56, -10], [70, 14], [84, 0], [92, 20], [90, 28], [24, 34]], C.yellow, 'stroke="#0b0b0b" stroke-width="2"') + `<circle cx="56" cy="8" r="4" fill="${C.pink}"/>`,
+      crescent: `<path d="M50 14a16 16 0 1 0 14 24a12 12 0 1 1 -14 -24z" fill="${C.yellow}"/>`,
+      bolt: poly([[56, 4], [70, 4], [62, 20], [72, 20], [54, 42], [58, 24], [50, 24]], C.yellow, 'stroke="#0b0b0b" stroke-width="1.6"'),
+      stethoscope: '', cape: '', mask: '', star: '',
     }[a] || '')).join('');
-    return `<g class="head"><g class="hb">${hairBackSvg}</g>${ears}${poly(FACE, skin)}<g class="hf">${hairFrontSvg}</g>${features(o)}${acc}</g>`;
+    const pre = (o.acc || []).includes('mask') ? poly([[12, 38], [60, 32], [100, 24], [104, 70], [60, 76], [18, 80]], o.maskC || '#0b0b0b') : '';
+    return `<g class="head"><g class="hb">${hairBackSvg}</g>${ears}${poly(FACE, skin)}${pre}<g class="hf">${hairFrontSvg}</g>${features(o)}${acc}</g>`;
   }
 
   /* ------------------------------------------------------------------ body */
@@ -191,7 +197,8 @@ window.ART = (() => {
     const tilt = o.tilt || 0;
     const held = (o.holdR ? `<g transform="translate(${SH.R[0] + pose.R[1][0]} ${SH.R[1] + pose.R[1][1]})">${o.holdR}</g>` : '') + (o.holdL ? `<g transform="translate(${SH.L[0] + pose.L[1][0]} ${SH.L[1] + pose.L[1][1]})">${o.holdL}</g>` : '');
     const bodyBack = o.over ? '' : '';
-    return `<g class="person" ${o.id ? `data-id="${o.id}"` : ''}>${lower}${arm('L')}${neck}${upper}<g class="bobg"><g class="hd" transform="rotate(${tilt} 60 112)">${head({ ...o, skin: o.skin || 'a' })}</g></g>${arm('R')}${held}${bodyBack}</g>`;
+    const cape = o.cape ? poly([[34, 122], [92, 118], [128, 250], [112, legH - 20], [8, legH - 14], [-10, 240]], o.cape) + poly([[34, 122], [92, 118], [96, 150], [30, 154]], shade(o.cape, -.2)) : '';
+    return `<g class="person" ${o.id ? `data-id="${o.id}"` : ''}>${cape}${lower}${arm('L')}${neck}${upper}<g class="bobg"><g class="hd" transform="rotate(${tilt} 60 112)">${head({ ...o, skin: o.skin || 'a' })}</g></g>${arm('R')}${held}${bodyBack}</g>`;
   }
   /* place a person (or anything) at x,y (feet) with a height in px */
   const at = (svg, x, y, h = 300, flip = false, fh = 318) => { const s = h / fh; return `<g transform="translate(${f(x)} ${f(y - h)}) scale(${f(flip ? -s : s)} ${f(s)}) ${flip ? 'translate(-120 0)' : ''}">${svg}</g>`; };
@@ -213,9 +220,20 @@ window.ART = (() => {
     doc:   { skin: 'a', hair: 'bob', top: '#ffffff', ts: 'coat', bot: '#59662e', bs: 'pants', acc: ['glasses'] },
     teacher:{ skin: 'c', hair: 'bun', top: '#e35e26', ts: 'kurta', bot: '#434f64', bs: 'pants', acc: ['bindi'] },
   };
-  const P = (name, over = {}) => ({ ...CAST[name], ...over });
+  /* the child's own avatar can star in the stories: the first generic kid in a scene is swapped for them */
+  const KIDS = new Set(['mini', 'arjun', 'tara', 'rishi', 'riya', 'kabir', 'meera', 'dev']);
+  const LOOK = ['skin', 'hair', 'hc', 'top', 'ts', 'bot', 'bs', 'acc', 'cape', 'num', 'stripe', 'maskC'];
+  const P = (name, over = {}) => {
+    if (api.ME && KIDS.has(name) && !api._meUsed) {
+      api._meUsed = true; const o = { ...over }; LOOK.forEach(k => delete o[k]);
+      const base = { ...CAST[name] }; LOOK.forEach(k => delete base[k]);
+      return { ...base, ...api.ME, ...o };
+    }
+    return { ...CAST[name], ...over };
+  };
 
   /* standalone head, for splash / avatars: svg string */
   const headSVG = (o, w = 140) => `<svg viewBox="-24 -34 168 182" width="${w}" style="overflow:visible">${head(o)}</svg>`;
-  return { C, SK, EX, shade, poly, line, head, headSVG, features, person, at, CAST, P, f, hex };
+  const api = { C, SK, EX, shade, poly, line, head, headSVG, features, person, at, CAST, P, f, hex, ME: null, _meUsed: false };
+  return api;
 })();

@@ -834,3 +834,45 @@ img{-webkit-user-drag:none;user-drag:none}
 .scn svg{position:absolute;left:0;bottom:0;width:100%;height:80%}
 .lc .th svg,.tc .wmsvg svg{height:100%}
 .sl .banner.cap{padding:10px 46px}
+
+/* ---- avatars: tabs, heroes, builder ---- */
+.avtabs{position:absolute;left:0;right:0;top:106px;display:flex;gap:8px;justify-content:center;align-items:center;z-index:4}
+.avtabs button{padding:6px 14px;border-radius:99px;background:#fff;box-shadow:0 0 0 1.5px #cfc8dc;font:700 12.5px var(--body);color:#555;transition:.2s}
+.avtabs button.on{background:var(--agec,var(--purple));color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.3)}
+.avtabs .mkbtn{background:var(--yellow);color:var(--ink);box-shadow:0 0 0 2px var(--ink),3px 3px 0 var(--ink);margin-left:14px}
+.avtabs .mkbtn:hover{transform:translate(-1px,-1px)}
+.avgrid.heroes,.avgrid.mine{grid-template-columns:repeat(4,1fr);top:152px;width:640px;margin-left:-320px;gap:10px 8px}
+.avgrid.heroes .av,.avgrid.mine .av{height:118px;flex-direction:column;display:flex;align-items:center;justify-content:flex-end}
+.avgrid .av img{max-height:92px}
+.avgrid .av small{font:800 10.5px var(--body);color:#555;margin-top:2px}
+.avgrid.heroes .av img,.avgrid.mine .av img{height:96px;width:auto}
+.avempty{grid-column:1/-1;text-align:center;font:700 14px/1.5 var(--body);color:#777;padding-top:30px}
+.mkl{position:absolute;left:44px;top:100px;width:300px;text-align:center}
+.mkp{width:190px;height:226px;margin:0 auto;background:var(--cream);box-shadow:0 0 0 2px var(--ink),7px 7px 0 var(--yellow);display:grid;place-items:center;transform:rotate(-1.5deg)}
+.mkp svg{width:170px;height:auto}
+.mkphoto{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.mknote{font:600 11px/1.4 var(--body);color:#777;margin:8px auto 0;max-width:260px}
+.mkph{width:44px;height:44px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px var(--ink);position:absolute;left:12px;top:150px}
+.mkr{position:absolute;left:372px;top:98px;width:528px;display:flex;flex-direction:column;gap:7px}
+.mkrow{display:flex;gap:10px;align-items:center}
+.mkrow b{flex:none;width:78px;font:800 11px var(--body);letter-spacing:.8px;text-transform:uppercase;color:var(--purple)}
+.mkrow>div{display:flex;flex-wrap:wrap;gap:5px}
+.sw2{width:26px;height:26px;border-radius:50%;box-shadow:0 0 0 1.5px #0003;transition:transform .15s}
+.sw2:hover{transform:scale(1.15)}.sw2.on{box-shadow:0 0 0 3px var(--ink);transform:scale(1.18)}
+.ch2{padding:4px 9px;border-radius:99px;background:#fff;box-shadow:0 0 0 1.5px #cfc8dc;font:700 11px var(--body);color:#555;transition:.15s}
+.ch2:hover{box-shadow:0 0 0 1.5px var(--purple);color:var(--purple)}.ch2.on{background:var(--purple);color:#fff;box-shadow:0 2px 0 #2f0f57}
+.camsheet{left:216px;top:34px;width:500px;height:360px;padding:0;overflow:hidden;background:#000}
+.camsheet video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.camguide{position:absolute;left:50%;top:44%;width:170px;height:210px;margin:-105px 0 0 -85px;border:3px dashed #fff;border-radius:50%;pointer-events:none}
+.camact{position:absolute;left:0;right:0;bottom:14px;display:flex;gap:12px;justify-content:center}
+.avtabs{top:124px}
+.avgrid{top:168px!important;gap:8px 8px}
+.av{height:84px}.av img{max-height:80px;max-width:92px}
+.avgrid.heroes,.avgrid.mine{top:166px!important;gap:6px 8px}
+.avgrid.heroes .av,.avgrid.mine .av{height:100px}
+.avgrid.heroes .av img,.avgrid.mine .av img{height:76px}
+.mkl{top:92px}
+.mkp{width:150px;height:178px}.mkp svg{width:136px}
+.mkphoto{margin-top:12px}
+.mknote{font-size:10.5px;max-width:240px;margin-top:6px}
+.mkph{left:34px;top:140px;width:38px;height:38px}

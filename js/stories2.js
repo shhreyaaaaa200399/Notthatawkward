@@ -166,6 +166,18 @@
       facts: { items: ['IVF means doctors help the egg and sperm meet in a lab dish, then place the embryo in the uterus.', 'Families begin in many ways: birth, adoption, IVF and more. All are real families.', 'Jean Purdy helped in the work and was left off the first plaque. She is now remembered.'], quote: 'Any question about bodies and babies is a good question.' },
       talk: talk('Where do you think a baby grows before it is born?', 'Families begin in different ways. How can we explain that with love?') },
 
+
+    { id: 'names', zone: 'body', tiers: 'ymo', minAge: 4, mins: 4, tone: 'Gentle', real: 'The words doctors and teachers use', thumb: 'names2',
+      title: 'Real names for body parts', desc: 'Every body part has a real name, and so do the private ones. Using real words helps us stay healthy and safe.',
+      slides: [
+        { scene: 'names1', t: { y: 'Every part of your body has a real name: head, elbow, knee, tummy…', m: 'Every part of your body has a real name. Using real names helps you stay healthy and safe.' } },
+        { scene: 'names2', t: { y: 'Some parts are private, the ones under your underwear. They have real names too.', m: 'The parts covered by your underwear are private. Their names are body words, not rude words.', o: 'Private parts have real names. Everyone’s body is different, and all of them are normal.' } },
+        { scene: 'names3', tone: true, only: 'mo', t: { m: 'Doctors and teachers use pictures like this to show what these parts look like and where they are.', o: 'Diagrams like this show the reproductive system: the parts of the body that can help make a baby when you are grown up.' } },
+        { scene: 'names4', t: { y: 'Private parts are private. Only you, and a doctor with a grown-up there, may check them when you need help.', m: 'Only you, and a doctor with a grown-up there, may check private parts when you need help. Anyone else asking: say no and tell a trusted adult.' } },
+      ],
+      facts: { items: ['UNESCO’s sex-education guidance says children should learn the correct names of body parts from an early age.', 'Real names make it easier to tell a doctor or a grown-up exactly what you mean.', 'Diagrams only appear when a grown-up has chosen the “Not That Awk” level.'], quote: 'Body words are just words.' },
+      talk: talk('Can you say the real name of three body parts out loud?', 'Say the proper words calmly. Children copy your tone.') },
+
     { id: 'padman', zone: 'body', tiers: 'o', minAge: 10, mins: 5, tone: 'Deep', real: 'Arunachalam Muruganantham, Coimbatore', thumb: 'pad4',
       title: 'The man who talked about periods', desc: 'Arunachalam Muruganantham made low-cost pads so women could stay healthy, even when people laughed.',
       slides: [
