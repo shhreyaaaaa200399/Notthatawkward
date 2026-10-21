@@ -915,3 +915,25 @@ img{-webkit-user-drag:none;user-drag:none}
 .ib.snd.off{opacity:.5}
 .ib.snd.off::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:5px;background:var(--ink);transform:rotate(-40deg);box-shadow:0 0 0 2px var(--paper)}
 .approved{position:absolute;left:0;right:0;bottom:62px;text-align:center;font:700 11px var(--body);color:#8a8497;letter-spacing:.3px}
+
+/* age picker: three big, tappable worlds */
+.agecards{position:absolute;left:50%;top:112px;width:810px;margin-left:-405px;display:flex;gap:22px;justify-content:center}
+.agecard{position:relative;width:250px;background:var(--paper);box-shadow:0 0 0 2px var(--ink),6px 6px 0 var(--cc,var(--orange));text-align:center;transition:transform .3s cubic-bezier(.2,1.6,.4,1),box-shadow .25s,opacity .25s,filter .25s;cursor:pointer;opacity:.82}
+.agecard[data-age="y"]{--cc:#e35e26;--cs:#ffecba}.agecard[data-age="m"]{--cc:#59662e;--cs:#dcedf0}.agecard[data-age="o"]{--cc:#592898;--cs:#eee8f5}
+.agecard .pic{height:158px;overflow:hidden;background:var(--cs)}.agecard .pic svg{width:100%;height:100%;display:block}
+.agecard .lbl{padding:10px 8px 14px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.agecard .lbl b{font:400 38px/1 var(--display);color:var(--cc)}
+.agecard .lbl small{font:800 10px var(--body);letter-spacing:1.6px;color:#666}
+.agecard .lbl em{font:800 14px var(--body);font-style:normal;color:var(--ink);margin-top:4px}
+.agecard .lbl span{font:600 11.5px var(--body);color:#777}
+.agecard .ck{position:absolute;right:-10px;top:-12px;width:36px;height:36px;border-radius:50%;background:var(--cc);display:grid;place-items:center;box-shadow:0 0 0 3px #fff;z-index:3;transform:scale(0);transition:transform .3s cubic-bezier(.2,1.8,.4,1)}
+.agecard .ck svg{width:20px}
+.agecard:hover{transform:translateY(-6px) rotate(-.8deg);opacity:1}
+.agecard.on{transform:translateY(-12px) scale(1.05);opacity:1;box-shadow:0 0 0 3px var(--ink),10px 12px 0 var(--cc)}
+.agecard.on .ck{transform:scale(1)}
+.agecards:has(.on) .agecard:not(.on){filter:saturate(.55);opacity:.7}
+.agecard.on .pic svg{animation:sway 3.2s ease-in-out infinite}
+.agecards{top:132px;gap:26px}
+.agecard{width:236px}.agecard .pic{height:122px}
+.agecard .lbl{padding:6px 8px 10px}.agecard .lbl b{font-size:32px}
+.agecard.on{transform:translateY(-6px) scale(1.04)}

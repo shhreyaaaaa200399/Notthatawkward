@@ -178,7 +178,7 @@ const SC = {}; const ORDER = []; let cur = { id: null, opts: {} }; const hist = 
 const reg = (id, def) => { SC[id] = def; ORDER.push(id); };
 const ACT = {};
 /* vertical rhythm: sit the main content block in the middle of the space between the title and the footer buttons */
-const NO_CENTER = new Set(['avatar', 'avmake', 'splash', 'intro', 'story', 'done', 'goodbye', 'learn', 'topics', 'dice', 'settings', 'playhub', 'challenge', 'awkie', 'ama', 'meethub']);
+const NO_CENTER = new Set(['age', 'avatar', 'avmake', 'splash', 'intro', 'story', 'done', 'goodbye', 'learn', 'topics', 'dice', 'settings', 'playhub', 'challenge', 'awkie', 'ama', 'meethub']);
 function centerContent(el) {
   if (!el.isConnected || el.dataset.centred === '1') return;
   const kids = [...el.children].filter(k => getComputedStyle(k).position === 'absolute' && !k.matches('.eyebrow,.ib,.chip,.dots,.foot,.ph-bar,.ph-nv,.deco,.toast,.confetti,.floaty,.mascot,.hint,.go'));
@@ -466,12 +466,23 @@ function carousel(el, sel, n, get, set, gap) {
   let x0 = null; el.addEventListener('pointerdown', e => { x0 = (window.NTA_ROT ? e.clientY : e.clientX); }); el.addEventListener('pointerup', e => { if (x0 == null) return; const d = (window.NTA_ROT ? e.clientY : e.clientX) - x0; x0 = null; const sc = window.NTA_SCALE || 1; if (Math.abs(d) > 40 * sc) mv(d < 0 ? 1 : -1); });
   return { mv, place, idx: () => i };
 }
+const AGEINFO = { '4-6': { tier: 'y', big: '4–6', tag: 'Little explorers', sub: 'Short, silly and sweet' }, '7-9': { tier: 'm', big: '7–9', tag: 'Curious minds', sub: 'Real stories and games' }, '10-12': { tier: 'o', big: '10–12', tag: 'Almost teens', sub: 'Deeper facts, real talk' } };
+function ageScene(tier) {
+  const ctx = { tier, tone: 1 }, A = ART, P = (n, o) => A.at(A.person(A.P(n, o)), 0, 0, 0);
+  const at = (n, x, h, o, flip) => A.at(A.person(A.P(n, o)), x, PR.GY, h, flip);
+  const kids = { y: at('mini', 300, 200, { pose: 'wave', ex: 'laugh' }) + at('arjun', 470, 190, { pose: 'cheer', ex: 'happy' }, true),
+    m: at('rishi', 290, 230, { pose: 'kick', ex: 'determined' }) + PR.ball(470, PR.GY - 22, 22) + at('tara', 520, 230, { pose: 'cheer', ex: 'laugh' }, true),
+    o: at('riya', 300, 270, { pose: 'hips', ex: 'proud' }) + at('kabir', 470, 280, { pose: 'think', ex: 'curious' }, true) }[tier];
+  return `<svg viewBox="150 70 620 360" preserveAspectRatio="xMidYMax slice">${PR.base(ctx, {})}${kids}</svg>`;
+}
 reg('age', { name: 'How old is the child?', group: 'Onboarding',
   render: () => `${gearB}${closeB()}${hd(t('age_q'))}
-    <div class="car">${AGES.map(a => `<div class="it">${ageCard(a)}</div>`).join('')}
-      <button class="nv l" aria-label="Previous">${ICON.chevL}</button><button class="nv r" aria-label="Next">${ICON.chevR}</button></div>
+    <div class="agecards">${Object.entries(AGEINFO).map(([a, d]) => `<button class="agecard ${draft.age === a ? 'on' : ''}" data-act="pickage:${a}" data-age="${d.tier}" aria-pressed="${draft.age === a}">
+      <span class="ck">${ICON.check}</span><div class="pic">${ageScene(d.tier)}</div>
+      <div class="lbl"><b>${d.big}</b><small>YEARS OLD</small><em>${d.tag}</em><span>${d.sub}</span></div></button>`).join('')}</div>
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('cont'), act: 'go:avatar', cls: 'pulse' }])}`,
-  mount: el => { carousel(el, '.it', 3, () => AGES.indexOf(draft.age), i => { draft.age = AGES[i]; }, 394); } });
+  mount: el => { $('#stage').dataset.age = AGEINFO[draft.age].tier; } });
+ACT.pickage = a => { draft.age = a; $$('.agecard').forEach(c => { const on = c.dataset.act === 'pickage:' + a; c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); $('#stage').dataset.age = AGEINFO[a].tier; beep('pop'); confetti(14); };
 
 let avTab = 'animals';
 const avTabs = () => ['animals', ...(draft.age === '10-12' ? ['heroes'] : []), 'mine'];
