@@ -941,3 +941,21 @@ img{-webkit-user-drag:none;user-drag:none}
 #side nav .flowsw button{justify-content:center;padding:7px 4px;font-size:11.5px;border-radius:8px;text-align:center}
 #side nav .flowsw button.on{background:var(--orange);color:#fff}
 .flownote{margin:0 4px 10px;font-size:10.5px;line-height:1.4;color:#8b849c}
+
+/* topics: calm white cards, a colour stripe, a switch */
+.tm-cards{display:flex;gap:18px;justify-content:center;left:0;right:150px}
+.tc{position:relative;width:196px;height:168px;padding:16px 16px 14px;background:#fff;color:var(--ink);box-shadow:0 0 0 1.5px #d8d1e4;border-top:6px solid var(--zc);transform:none!important;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s}
+.tc:hover{box-shadow:0 0 0 2px var(--zc),0 8px 0 rgba(0,0,0,.06)}
+.tc.z-identity{--zc:#9ca32f;background:#fff}.tc.z-emotions{--zc:#e35e26;background:#fff}.tc.z-friendship{--zc:#653781;background:#fff}.tc.z-body{--zc:#ffcb05;background:#fff}.tc.z-boundaries{--zc:#434f64;background:#fff}
+.tc .zn{font:800 10px var(--body);letter-spacing:1px;text-transform:uppercase;color:#8a8497}
+.tc h5{margin:6px 0 0;font:400 19px/1.15 var(--display);color:var(--ink);text-shadow:none!important;max-width:none;flex:1}
+.tc .row{display:flex;align-items:center;justify-content:space-between}
+.tc .pv{position:static;border:0;background:none;color:var(--purple);padding:6px 0;font:800 12px var(--body);text-decoration:underline;text-underline-offset:3px}
+.tc .pv:hover{background:none;color:var(--orange)}
+.tg2{width:46px;height:26px;border-radius:99px;background:#cfc8dc;position:relative;transition:background .2s}
+.tg2 i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0003;transition:transform .25s cubic-bezier(.2,1.6,.4,1)}
+.tg2.on{background:var(--olive)}.tg2.on i{transform:translateX(20px)}
+.tc.off{background:#faf8fc!important;filter:none}.tc.off h5{color:#8a8497}
+.tc .ck,.tc .lk,.tc .wmsvg{display:none}
+.tm-pager{left:50%;transform:translateX(-50%);bottom:70px}
+.tm-pager .btn{box-shadow:0 0 0 1.5px #cfc8dc!important;background:#fff;color:var(--ink);min-width:34px;padding:6px 10px}

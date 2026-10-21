@@ -642,17 +642,15 @@ reg('topics', { name: 'Choose topics (grown-ups)', group: 'Learn',
     const all = D.STORIES.filter(s => mgr.z === 'all' || s.zone === mgr.z); const pages = Math.max(1, Math.ceil(all.length / 3)); mgr.page = Math.min(mgr.page, pages - 1);
     const vis = all.slice(mgr.page * 3, mgr.page * 3 + 3);
     return `${gearB}${closeB('back')}<div class="eyebrow"><h2>${t('profile')}</h2><h3>${t('topics_q')} <b>${esc(p.name)}</b></h3><p>${t('topics_s')}</p></div>
-    <div class="tm-cards">${vis.map((s, i) => { const on = storyOn(p.id, s); return `<div class="tc z-${s.zone} ${on ? '' : 'off'}" style="--rot:${[-3, 2, -2][i]}deg" data-id="${s.id}">
-      <button class="ck" data-act="tog:${s.id}" aria-label="${on ? 'Remove from library' : 'Add to library'}">${ICON.check}</button>
-      ${s.minAge > ageMin(p) ? `<span class="lk">${s.minAge}+</span>` : ''}<h5>${esc(s.title)}</h5>
-      <div class="wmsvg"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice">${SCN[s.thumb](effStory(s).ctx)}</svg></div>
-      <button class="pv" data-act="preview:${s.id}">Preview ${ICON.play}</button></div>`; }).join('')}</div>
+    <div class="tm-cards">${vis.map((s, i) => { const on = storyOn(p.id, s); const z = D.ZONES.find(x => x.id === s.zone); return `<div class="tc z-${s.zone} ${on ? '' : 'off'}" data-id="${s.id}">
+      <small class="zn">${esc(z.name)}${s.minAge > ageMin(p) ? ` · ${s.minAge}+` : ''}</small><h5>${esc(s.title)}</h5>
+      <div class="row"><button class="pv" data-act="preview:${s.id}">Preview</button><button class="tg2 ${on ? 'on' : ''}" data-act="tog:${s.id}" aria-label="${on ? 'Hide from' : 'Show to'} ${esc(p.name)}" aria-pressed="${on}"><i></i></button></div></div>`; }).join('')}</div>
     <div class="tm-pager"><button class="btn sm ghost" data-act="mpage:-1" ${mgr.page === 0 ? 'disabled' : ''}>‹</button> ${mgr.page + 1} / ${pages} <button class="btn sm ghost" data-act="mpage:1" ${mgr.page >= pages - 1 ? 'disabled' : ''}>›</button></div>
     <div class="zones"><button class="all ${mgr.z === 'all' ? 'on' : ''}" data-act="mz:all">See All</button>${D.ZONES.map(z => `<button class="${mgr.z === z.id ? 'on' : ''}" data-act="mz:${z.id}">${ICON[z.icon]}${z.name}</button>`).join('')}</div>
     ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: t('done'), act: 'go:learn' }])}`; } });
 ACT.mz = z => { mgr.z = z; mgr.page = 0; rerender(); };
 ACT.mpage = d => { mgr.page += +d; rerender(); };
-ACT.tog = id => { const p = prof(); const s = D.STORIES.find(x => x.id === id); S.en[p.id] = S.en[p.id] || {}; S.en[p.id][id] = !storyOn(p.id, s); save(); const card = $(`.tc[data-id="${id}"]`); card && card.classList.toggle('off', !S.en[p.id][id]); toast(S.en[p.id][id] ? `${p.name} can now see this story` : `Hidden from ${p.name}`); };
+ACT.tog = id => { const p = prof(); const s = D.STORIES.find(x => x.id === id); S.en[p.id] = S.en[p.id] || {}; S.en[p.id][id] = !storyOn(p.id, s); save(); const card = $(`.tc[data-id="${id}"]`); card && (card.classList.toggle('off', !S.en[p.id][id]), $('.tg2', card).classList.toggle('on', !!S.en[p.id][id])); toast(S.en[p.id][id] ? `${p.name} can now see this story` : `Hidden from ${p.name}`); };
 ACT.preview = id => {
   const s0 = D.STORIES.find(x => x.id === id), s = effStory(s0), p = prof(); let i = 0; const on = () => storyOn(p.id, s0);
   const draw = () => { $('#modal').innerHTML = `<div class="sheet" style="left:34px;top:30px;width:864px;height:372px">
