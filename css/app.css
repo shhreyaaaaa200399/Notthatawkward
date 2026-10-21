@@ -876,3 +876,35 @@ img{-webkit-user-drag:none;user-drag:none}
 .mkphoto{margin-top:12px}
 .mknote{font-size:10.5px;max-width:240px;margin-top:6px}
 .mkph{left:34px;top:140px;width:38px;height:38px}
+
+/* avatar lab: one small decision at a time */
+.mkp{position:absolute;left:96px;top:104px;width:230px;height:270px;margin:0;transform:rotate(-1.5deg)}
+.mkp svg{width:200px}
+.mkr{position:absolute;left:400px;top:112px;width:470px;display:block;text-align:center}
+.mkh{font:800 15px var(--body);color:var(--ink);margin:0 0 16px}.mkh.sub{margin-top:24px}
+.mkopts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.mkopts.big .sw2{width:44px;height:44px}
+.mkopts.chips{gap:10px}.mkopts.chips .ch2{padding:9px 18px;font-size:13.5px}
+.mkr .mkphoto{margin:0 0 10px}.mkr .mknote{font-size:11.5px;max-width:380px;margin:0 auto 22px}
+.mkr .mkph{position:static;display:block;margin:0 auto 8px;width:46px;height:46px}
+.mkdots{position:absolute;left:0;right:0;bottom:62px;display:flex;gap:8px;justify-content:center}
+.mkdots i{width:26px;height:6px;background:#e0d9ea;transform:skewX(-20deg);transition:.3s}.mkdots i.on{background:var(--agec,var(--orange));width:38px}.mkdots i.dn{background:var(--olive)}
+/* avatar picker: tabs get their own row, empty state sits below */
+.avtabs{top:112px}
+.avempty{padding-top:10px}
+.avtabs{top:130px}.avgrid{top:176px!important}.avgrid.heroes,.avgrid.mine{top:174px!important}
+
+/* ask an expert: one list at a time, centred, with air above the button */
+.amatabs{top:104px}
+.ama1{position:absolute;left:50%;top:152px;width:640px;margin-left:-320px}
+.ama1 .qa-h{text-align:center;margin-bottom:12px}
+.ama1 .qa{max-height:180px}
+.ama-cta{bottom:26px}
+/* topics: more room under the subtitle */
+.tm-cards{margin-top:16px}
+/* world: calmer right column */
+.counter{margin-top:20px}.hi-row{margin-top:20px}
+.gl-side{top:104px}
+.ama1 .sess{padding:7px 14px}.ama1 .sess img{height:38px;width:38px}
+.ama1 .ses{gap:8px;max-height:190px;overflow:auto;padding:2px 8px 8px 2px}
+.ama-cta{bottom:20px}

@@ -167,7 +167,7 @@ const SC = {}; const ORDER = []; let cur = { id: null, opts: {} }; const hist = 
 const reg = (id, def) => { SC[id] = def; ORDER.push(id); };
 const ACT = {};
 /* vertical rhythm: sit the main content block in the middle of the space between the title and the footer buttons */
-const NO_CENTER = new Set(['splash', 'intro', 'story', 'done', 'goodbye', 'learn', 'topics', 'dice', 'settings', 'playhub', 'challenge', 'awkie', 'ama', 'meethub']);
+const NO_CENTER = new Set(['avatar', 'avmake', 'splash', 'intro', 'story', 'done', 'goodbye', 'learn', 'topics', 'dice', 'settings', 'playhub', 'challenge', 'awkie', 'ama', 'meethub']);
 function centerContent(el) {
   if (!el.isConnected || el.dataset.centred === '1') return;
   const kids = [...el.children].filter(k => getComputedStyle(k).position === 'absolute' && !k.matches('.eyebrow,.ib,.chip,.dots,.foot,.ph-bar,.ph-nv,.deco,.toast,.confetti,.floaty,.mascot,.hint,.go'));
@@ -273,7 +273,7 @@ window.NTA_FLOWER = flowerSVG;
 const LOGO = { W: 994, H: 820, parts: [['p1', 165, 27, 312], ['p2', 479, 45, 174], ['p3', 460, 266, 206], ['p6', 61, 420, 144], ['p5', 197, 405, 157], ['p4', 276, 391, 253], ['p7', 500, 472, 226], ['p8', 721, 493, 199]], bub: { o9: [668, 230, 203], o10: [52, 592, 237] } };
 const SPLASH_SCRIPT = [
   { who: 'o10', tx: 'Where do babies<br>come from?', ex: { c: 'curious', m: 'surprised', p: 'happy', a: 'happy' } },
-  { who: 'o9', tx: 'Let me tell<br>you a story', ex: { c: 'thinking', m: 'worried', p: 'awkward', a: 'embarrassed' } },
+  { who: 'o9', tx: 'We’ll tell<br>you, hope<br>it’s…', ex: { c: 'thinking', m: 'worried', p: 'awkward', a: 'embarrassed' } },
 ];
 /* the two families are vector heads: expressions change, they blink, and they talk */
 const SPL = { c: { skin: 'c', hair: 'braid', top: 1 }, m: { skin: 'a', hair: 'long', acc: ['bindi', 'earring'] }, p: { skin: 'b', hair: 'short', acc: ['moustache'] }, a: { skin: 'a', hair: 'dupatta', acc: ['bindi'] } };
@@ -487,24 +487,31 @@ let mk = mk0(), mkPhoto = null;
 const mkSpec = () => ({ ...mk, cape: mk.acc.includes('cape') ? '#ac2929' : null, acc: mk.acc.filter(a => a !== 'cape') });
 const sw = (key, c) => `<button class="sw2" data-mk="${key}:${c}" style="background:${c}" aria-label="${c}"></button>`;
 const chp = (key, v, l) => `<button class="ch2" data-mk="${key}:${v}">${l}</button>`;
+let mkStep = 0;
+const MK_STEPS = ['Face', 'Hair', 'Colours', 'Extras', 'Mood'];
+const mkPanel = () => [
+  `<div class="mkh">Start with a photo, or pick a skin tone</div>
+   <div class="mkphoto"><button class="btn sm ye" data-act="mkcam">Take a photo</button><button class="btn sm ghost" data-act="mkup">Upload</button><input type="file" id="mkf" accept="image/*" capture="user" hidden></div>
+   <div class="mknote" id="mknote">Optional. The photo stays on this device. It only suggests skin and hair colours.</div>
+   <div class="mkopts big">${SKINS.map(c => sw('skin', c)).join('')}</div>`,
+  `<div class="mkh">Choose a hair style</div><div class="mkopts chips">${HAIRS.map(([v, l]) => chp('hair', v, l)).join('')}</div>`,
+  `<div class="mkh">Hair colour</div><div class="mkopts big">${HCOLS.map(c => sw('hc', c)).join('')}</div>
+   <div class="mkh sub">Top colour</div><div class="mkopts big">${TCOLS.map(c => sw('top', c)).join('')}</div>`,
+  `<div class="mkh">Add anything you like</div><div class="mkopts chips">${EXTRAS.map(([v, l]) => chp('acc', v, l)).join('')}</div>`,
+  `<div class="mkh">How are you feeling?</div><div class="mkopts chips">${MOODS.map(([v, l]) => chp('ex', v, l)).join('')}</div>`,
+][mkStep];
 reg('avmake', { name: 'Make your own avatar', group: 'Onboarding',
-  render: () => `${gearB}${closeB('back')}${hd('Make your own avatar', 'AVATAR LAB')}
-    <div class="mkl"><div class="mkp" id="mkp">${ART.avatarSVG(mkSpec(), 170)}</div>
-      <div class="mkphoto"><button class="btn sm ye" data-act="mkcam">Take a photo</button><button class="btn sm ghost" data-act="mkup">Upload</button><input type="file" id="mkf" accept="image/*" capture="user" hidden></div>
-      <div class="mknote" id="mknote">A photo is optional. It stays on this device. We only pick skin and hair colours, then you can change anything.</div></div>
-    <div class="mkr">
-      <div class="mkrow"><b>Skin</b><div>${SKINS.map(c => sw('skin', c)).join('')}</div></div>
-      <div class="mkrow"><b>Hair</b><div>${HAIRS.map(([v, l]) => chp('hair', v, l)).join('')}</div></div>
-      <div class="mkrow"><b>Hair colour</b><div>${HCOLS.map(c => sw('hc', c)).join('')}</div></div>
-      <div class="mkrow"><b>Top</b><div>${TCOLS.map(c => sw('top', c)).join('')}</div></div>
-      <div class="mkrow"><b>Extras</b><div>${EXTRAS.map(([v, l]) => chp('acc', v, l)).join('')}</div></div>
-      <div class="mkrow"><b>Mood</b><div>${MOODS.map(([v, l]) => chp('ex', v, l)).join('')}</div></div>
-    </div>
-    ${foot([{ l: t('back'), act: 'back', cls: 'lt' }, { l: 'Use this avatar', act: 'mksave', cls: 'pulse' }])}`,
+  render: () => `${gearB}${closeB('back')}${hd(`Step ${mkStep + 1} of ${MK_STEPS.length}: ${MK_STEPS[mkStep]}`, 'AVATAR LAB')}
+    <div class="mkp" id="mkp">${ART.avatarSVG(mkSpec(), 190)}</div>
+    <div class="mkr">${mkPanel()}</div>
+    <div class="mkdots">${MK_STEPS.map((_, i) => `<i class="${i === mkStep ? 'on' : i < mkStep ? 'dn' : ''}"></i>`).join('')}</div>
+    ${foot([{ l: t('back'), act: 'mkback', cls: 'lt' }, mkStep === MK_STEPS.length - 1 ? { l: 'Use this avatar', act: 'mksave', cls: 'pulse' } : { l: 'Next', act: 'mknext', cls: 'pulse' }])}`,
   mount: el => {
-    const f = $('#mkf', el); f.onchange = () => { const file = f.files && f.files[0]; if (!file) return; const im = new Image(); im.onload = () => { mkAnalyze(im); URL.revokeObjectURL(im.src); }; im.src = URL.createObjectURL(file); };
+    const f = $('#mkf', el); if (f) f.onchange = () => { const file = f.files && f.files[0]; if (!file) return; const im = new Image(); im.onload = () => { mkAnalyze(im); URL.revokeObjectURL(im.src); }; im.src = URL.createObjectURL(file); };
     mkSync();
   } });
+ACT.mknext = () => { if (mkStep < MK_STEPS.length - 1) { mkStep++; rerender(); } };
+ACT.mkback = () => { if (mkStep > 0) { mkStep--; rerender(); } else { mkStep = 0; back(); } };
 function mkSync() {
   const pv = $('#mkp'); if (pv) pv.innerHTML = ART.avatarSVG(mkSpec(), 170);
   $$('[data-mk]').forEach(b => { const [k, ...r] = b.dataset.mk.split(':'), v = r.join(':'); b.classList.toggle('on', k === 'acc' ? mk.acc.includes(v) : mk[k] === v); });
@@ -537,7 +544,7 @@ function mkAnalyze(src) {
   mkPhoto = c.toDataURL('image/jpeg', .6); const old = $('#mkph'); if (old) old.remove();
   $('#mknote').textContent = 'Colours picked from your photo. Now make it yours!'; mkSync(); beep('win'); confetti(20);
 }
-ACT.mksave = () => { S.custom = S.custom || {}; const id = 'c' + Date.now().toString(36); S.custom[id] = mkSpec(); draft.av = 'me:' + id; avTab = 'mine'; save(); mk = mk0(); mkPhoto = null; toast('Your avatar is ready!'); go('avatar', {}, { noPush: true }); };
+ACT.mksave = () => { S.custom = S.custom || {}; const id = 'c' + Date.now().toString(36); S.custom[id] = mkSpec(); draft.av = 'me:' + id; avTab = 'mine'; save(); mk = mk0(); mkPhoto = null; mkStep = 0; toast('Your avatar is ready!'); go('avatar', {}, { noPush: true }); };
 
 reg('name', { name: 'What is the name?', group: 'Onboarding',
   render: () => `${gearB}${closeB()}${hd(t('name_q'))}

@@ -249,12 +249,14 @@ reg('awkie', { name: 'Ask Awkie (new)', group: 'Meet',
   } });
 ACT.anon = () => { S._anon = S._anon === false; $('.sw-t').classList.toggle('on', S._anon !== false); toast(S._anon === false ? 'Awkie will see your nickname' : 'Anonymous mode on'); };
 
+let amaTab = 'sessions';
 reg('ama', { name: 'Ask an Expert (new)', group: 'Meet',
   render: () => `${backB}${closeB('go:meethub')}${hd('Real experts. Real answers.', 'ASK AN EXPERT', 'sm')}
-    <div class="ama"><div class="ses"><div class="qa-h">COMING UP (SAMPLE SESSIONS)</div>${D.AMA.map(a => `<div class="sess" style="--c:${a.c}">${N.avImg(a.av === 'owl' ? 'elephant' : a.av)}<div><b>${a.role}</b><span>${esc(a.topic)}</span></div><span class="when">${a.when}</span></div>`).join('')}
-      </div>
-      <div><div class="qa-h">PARENTS ASKED</div><div class="qa">${D.QA.map(q => `<details><summary>${esc(q[0])}</summary><p>${esc(q[1])}</p></details>`).join('')}</div></div></div>
+    <div class="avtabs amatabs"><button class="${amaTab === 'sessions' ? 'on' : ''}" data-act="amatab:sessions">Live sessions</button><button class="${amaTab === 'qa' ? 'on' : ''}" data-act="amatab:qa">Parents asked</button></div>
+    <div class="ama1">${amaTab === 'sessions' ? `<div class="qa-h">COMING UP (SAMPLE SESSIONS)</div><div class="ses">${D.AMA.map(a => `<div class="sess" style="--c:${a.c}">${N.avImg(a.av === 'owl' ? 'elephant' : a.av)}<div><b>${a.role}</b><span>${esc(a.topic)}</span></div><span class="when">${a.when}</span></div>`).join('')}</div>`
+      : `<div class="qa-h">PARENTS ASKED</div><div class="qa">${D.QA.map(q => `<details><summary>${esc(q[0])}</summary><p>${esc(q[1])}</p></details>`).join('')}</div>`}</div>
     <div class="ama-cta"><button class="btn ye" data-act="askq">Send a question anonymously</button></div>` });
+ACT.amatab = k => { amaTab = k; rerender(); };
 ACT.askq = () => {
   modal(`<div class="sheet" style="left:190px;top:70px;width:550px;padding:24px 28px;box-shadow:0 0 0 3px #000,10px 10px 0 3px var(--yellow)"><h4 class="disp" style="margin:0 0 4px;font-size:26px;color:var(--purple)">Your question, anonymously</h4><p style="margin:0 0 12px;font:600 12.5px var(--body);color:#777">Experts answer in the next live session. Please don’t share names or addresses.</p>
     <textarea id="aq" rows="3" maxlength="200" style="width:100%;font:600 14px var(--body);padding:10px;border:2px solid #000;outline:none;resize:none" placeholder="Type your question…"></textarea>
