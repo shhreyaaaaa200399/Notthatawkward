@@ -236,7 +236,7 @@ document.addEventListener('click', e => {
 Object.assign(ACT, {
   go: a => go(a), back: () => back(),
   gated: a => gate(() => { S._unlock = Date.now(); go(a); }),
-  settings: () => go('settings'),
+  settings: () => ALONE ? gate(() => { ALONE = false; go('settings'); }, 'Settings are for grown-ups.') : go('settings'),
   trans: () => { langReturn = cur.id; go('language'); },
   exit: () => {
     modal(`<div class="gate" style="margin-top:-130px"><h4>Taking a break?</h4><p>Your stars and stickers are safe. See you soon!</p>
@@ -394,9 +394,18 @@ ACT.whonext = () => go(S.roleChosen === 'child' ? 'kidgate' : 'comfort');
 reg('kidgate', { name: 'Grown-up nearby? (new)', group: 'Onboarding',
   render: () => `<div class="cstack"><img class="sway" src="assets/who_child.png" alt="" style="height:130px"><h2 class="disp">Is a <span style="color:var(--orange)">grown-up</span> nearby?</h2>
       <p>Get one to say hi first. We talk <b>together</b>.</p>
-      <div style="display:flex;gap:14px;justify-content:center"><button class="btn ol" data-act="go:consent">Yes, they’re here</button><button class="btn ghost" data-act="kidno">Not yet</button></div></div>${foot([{ l: t('back'), act: 'back', cls: 'lt' }])}`,
+      <div style="display:flex;gap:14px;justify-content:center"><button class="btn ol" data-act="kidyes">Yes, they’re here</button><button class="btn ghost" data-act="kidno">Not yet</button></div></div>${foot([{ l: t('back'), act: 'back', cls: 'lt' }])}`,
 });
-ACT.kidno = () => { toast('No worries! Come back with a grown-up and we’ll start.'); setTimeout(() => go('who'), 900); };
+/* kids-only mode: "Not yet" lets a child in, but only to what a grown-up already approved for their profile */
+let ALONE = false;
+const approvedFor = (pid, s) => !!(S.en[pid] && S.en[pid][s.id] === true);
+ACT.kidyes = () => { ALONE = false; go('consent'); };
+ACT.kidno = () => {
+  if (!S.profiles.length) return modal(`<div class="gate"><h4>No stories picked yet</h4><p>A grown-up hasn’t chosen anything for you yet. Come back with one and they can set it up in a minute.</p>
+    <p style="margin:16px 0 0"><button class="btn ol sm" data-ok>OK</button></p></div>`, { sticky: true }), $('#modal [data-ok]').onclick = () => { closeModal(); go('who'); };
+  ALONE = true; toast('Kids-only mode: just the stories your grown-ups picked.'); setTimeout(() => go('users'), 700);
+};
+ACT.exitalone = () => gate(() => { ALONE = false; toast('Grown-up mode on'); rerender(); }, 'Quick check before leaving kids-only mode.');
 
 const faceSVG = lvl => `<svg viewBox="0 0 64 64"><polygon points="8,12 54,6 58,52 14,58" fill="#e35e26" stroke="#000" stroke-width="2.5"/>
   <circle cx="26" cy="28" r="7.5" fill="#fff" stroke="#000" stroke-width="2"/><circle cx="45" cy="27" r="7.5" fill="#fff" stroke="#000" stroke-width="2"/>
@@ -590,7 +599,7 @@ reg('users', { name: 'Who’s using the app?', group: 'Onboarding',
       : `<div class="u"><div class="sq"></div><div class="nm"></div></div>`).join('')}</div>
     ${foot([{ l: t('done'), act: 'go:hub', cls: 'pulse' }])}`; } });
 ACT.useuser = id => { S.cur = id; save(); $$('.u.f').forEach(u => u.classList.toggle('on', u.querySelector('.sq').dataset.act === 'useuser:' + id)); beep('pop'); setTimeout(() => go('hub'), 350); };
-ACT.adduser = () => { draft.name = ''; draft.av = null; go('age'); };
+ACT.adduser = () => { const f = () => { draft.name = ''; draft.av = null; go('age'); }; ALONE ? gate(() => { ALONE = false; f(); }, 'Adding a profile is for grown-ups.') : f(); };
 ACT.rmuser = id => gate(() => { if (S.profiles.length < 2) return toast('Keep at least one profile.'); S.profiles = S.profiles.filter(p => p.id !== id); if (S.cur === id) S.cur = S.profiles[0].id; save(); rerender(); }, 'Removing a profile is for grown-ups.');
 
 /* ------------------------------------------------------------------ HOME hub (“Why are you here today?”) */
@@ -603,8 +612,9 @@ reg('hub', { name: 'Why are you here today?', group: 'Home',
   render: () => `${gearB}${transB}${chipHTML('sm')}${hd(t('why_q'))}
     <div class="tiles">${TILES.map(x => `<button class="tile ${x.cls}" data-act="tile:${x.id}"><div class="face"><img src="${D.ART[x.art].src}" style="${x.st}" alt=""><h4>${t(x.id)}</h4></div><p>${t(x.k)}</p></button>`).join('')}</div>
     <div class="statpills"><button class="stat" data-act="go:stickers">${ICON.star}<span>${S.stars}</span></button><button class="stat" data-act="cueofday" aria-label="Today’s cue card">${ICON.flame}<span>Today’s cue</span></button></div>
+    ${ALONE ? `<button class="btn ghost sm" style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%)" data-act="exitalone">🔒 Kids-only · grown-up here?</button>` : ''}
     ${foot([{ l: 'SWITCH', act: 'go:users', cls: 'lt' }])}` });
-ACT.tile = id => { const x = TILES.find(a => a.id === id); $$('.tile').forEach(b => b.classList.toggle('on', b.dataset.act === 'tile:' + id)); setTimeout(() => go(x.go), 380); };
+ACT.tile = id => { if (ALONE && id === 'meet') return toast('Ask a grown-up to open Meet with you.'); const x = TILES.find(a => a.id === id); $$('.tile').forEach(b => b.classList.toggle('on', b.dataset.act === 'tile:' + id)); setTimeout(() => go(x.go), 380); };
 ACT.cueofday = () => {
   const lvl = D.TONES[S.tone].max; const pool = D.DICE.flatMap(d => d.cards.filter(c => c[0] <= lvl).map(c => ({ d, c })));
   const day = new Date().getDate(); const x = pool[day % pool.length];
@@ -618,13 +628,13 @@ const zoneFilter = { z: 'all' };
 const thumbHTML = s => { const e = effStory(s); return `<div class="th"><svg viewBox="0 0 932 430" preserveAspectRatio="xMidYMid slice">${SCN[s.thumb](e.ctx)}</svg>${s.real ? `<span class="rl">REAL STORY</span>` : ''}</div>`; };
 reg('learn', { name: 'Learn · story library', group: 'Learn', cls: '',
   render: () => {
-    const p = prof(); const list = D.STORIES.filter(s => storyOn(p.id, s) && (zoneFilter.z === 'all' || s.zone === zoneFilter.z));
+    const p = prof(); const list = D.STORIES.filter(s => (ALONE ? approvedFor(p.id, s) : storyOn(p.id, s)) && (zoneFilter.z === 'all' || s.zone === zoneFilter.z));
     return `${gearB}${closeB('back')}${chipHTML()}
     <div class="pills"><button class="${zoneFilter.z === 'all' ? 'on' : ''}" data-act="zf:all">All</button>${D.ZONES.map(z => `<button class="${zoneFilter.z === z.id ? 'on' : ''}" data-act="zf:${z.id}">${z.name}</button>`).join('')}</div>
-    ${list.length ? `<div class="lcar">${list.map(s => `<div class="lc" data-open="openstory" data-id="${s.id}"><div class="lc-cap">${esc(s.title)}</div><div class="thw">${thumbHTML(s)}${s.minAge > ageMin(p) ? `<div class="lk2">${s.minAge}+ · unlocked by a grown-up</div>` : ''}</div></div>`).join('')}
+    ${list.length ? `<div class="lcar">${list.map(s => `<div class="lc" data-open="openstory" data-id="${s.id}"><div class="lc-cap">${esc(s.title)}</div><div class="thw">${thumbHTML(s)}${s.minAge > ageMin(p) && !ALONE ? `<div class="lk2">${s.minAge}+ · unlocked by a grown-up</div>` : ''}</div></div>`).join('')}
       <button class="nv l" aria-label="Previous">${ICON.chevL}</button><button class="nv r" aria-label="Next">${ICON.chevR}</button></div>`
-      : `<div class="abs" style="left:0;right:0;top:170px;text-align:center"><h3 class="disp" style="font-size:26px;margin:0 0 8px">No stories here yet</h3><p style="font:600 14px var(--body);color:#777;margin:0">A grown-up can switch more stories on.</p></div>`}
-    <div class="approved">Stories your grown-ups approved for ${esc(p.name)}</div>
+      : `<div class="abs" style="left:0;right:0;top:170px;text-align:center"><h3 class="disp" style="font-size:26px;margin:0 0 8px">No stories here yet</h3><p style="font:600 14px var(--body);color:#777;margin:0">${ALONE ? 'Ask a grown-up to pick some for you.' : 'A grown-up can switch more stories on.'}</p></div>`}
+    <div class="approved">${ALONE ? '🔒 Kids-only · ' : ''}Stories your grown-ups approved for ${esc(p.name)}</div>
     <div class="learn-actions"><button class="btn ghost sm" data-act="back">${t('back')}</button><button class="btn sm" style="white-space:nowrap" data-act="gated:topics">${ICON.lock.replace('currentColor', '#fff').replace('<svg','<svg width="16" height="16"')} ${t('grownups')}</button></div>`;
   },
   mount: el => {
@@ -810,8 +820,8 @@ function buildSide() {
   const paintFlow = () => { $$('.flowsw button').forEach(b => b.classList.toggle('on', b.dataset.flow === mode())); $('#flownote').textContent = mode() === 'first' ? 'No profiles yet: splash → intro → language → who → … → avatar → name.' : 'Profiles exist: splash → who’s using the app → home. Tap + to add a child.'; };
   $$('.flowsw button').forEach(b => b.onclick = () => {
     if (b.dataset.flow === 'first') { S.profiles = []; S.cur = null; S.consent = false; S.onboarded = false; S.roleChosen = null; }
-    else { S.profiles = [{ id: 'p1', name: 'Aarav', av: 'deer', age: '4-6' }, { id: 'p2', name: 'Shreya', av: 'goat', age: '7-9' }, { id: 'p3', name: 'Midha', av: 'hero:lightning', age: '10-12' }]; S.cur = 'p1'; S.onboarded = true; }
-    save(); paintFlow(); go('splash');
+    else { S.profiles = [{ id: 'p1', name: 'Aarav', av: 'deer', age: '4-6' }, { id: 'p2', name: 'Shreya', av: 'goat', age: '7-9' }, { id: 'p3', name: 'Midha', av: 'hero:lightning', age: '10-12' }]; S.cur = 'p1'; S.onboarded = true; S.en = {}; S.profiles.forEach(q => { S.en[q.id] = {}; D.STORIES.filter(x => x.minAge <= ageMin(q)).slice(0, 4).forEach(x => S.en[q.id][x.id] = true); }); }
+    ALONE = false; save(); paintFlow(); go('splash');
   });
   paintFlow(); window.NTA_paintFlow = paintFlow;
   $$('#side nav button[data-id]').forEach(b => b.onclick = () => { go(b.dataset.id, b.dataset.id === 'story' || b.dataset.id === 'done' ? { id: 'pink' } : {}); });
